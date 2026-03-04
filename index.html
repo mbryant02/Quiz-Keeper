@@ -1,0 +1,752 @@
+<!--     This file is part of Quiz Keeper, a test generation and question bank tool. (C) 2026 by Mark Bryant.
+
+    Quiz Keeper is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+    Quiz Keeper is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along with Quiz Keeper. If not, see <https://www.gnu.org/licenses/>. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Keeper</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>📚 Quiz Keeper</h1>
+            <div class="header-actions">
+                <button id="newQuestionBtn" class="btn btn-primary">+ New Question</button>
+                <button id="generateTestBtn" class="btn btn-success">Generate Test</button>
+                <button id="themeToggleBtn" class="btn btn-secondary" title="Toggle dark mode">🌙 Dark</button>
+                <div class="dropdown">
+                    <button id="databaseMenuBtn" class="btn btn-secondary">⚙️ Database</button>
+                    <div id="databaseMenu" class="dropdown-menu">
+                        <button id="exportDatabaseBtn" class="dropdown-item">💾 Export Database</button>
+                        <button id="importDatabaseBtn" class="dropdown-item">📂 Import Database</button>
+                        <button id="clearDatabaseBtn" class="dropdown-item danger">🗑️ Clear Database</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs">
+            <button class="tab-btn active" data-view="questions">Questions</button>
+            <button class="tab-btn" data-view="collections">Collections</button>
+            <button class="tab-btn" data-view="tests">Test History</button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Questions View -->
+            <section id="questionsView" class="view active">
+                <div class="toolbar">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search questions...">
+                        <button id="searchBtn" class="btn btn-secondary">🔍 Search</button>
+                    </div>
+                    <div class="filter-box">
+                        <select id="filterSubject">
+                            <option value="">All Subjects</option>
+                        </select>
+                        <select id="filterClass">
+                            <option value="">All Classes</option>
+                        </select>
+                        <select id="filterExamPeriod">
+                            <option value="">All Exam Periods</option>
+                        </select>
+                        <select id="filterType">
+                            <option value="">All Types</option>
+                            <option value="multiple-choice">Multiple Choice</option>
+                            <option value="true-false">True/False</option>
+                            <option value="short-answer">Short Answer</option>
+                            <option value="essay">Essay</option>
+                            <option value="matching">Matching</option>
+                            <option value="table">Table</option>
+                        </select>
+                        <button id="clearFiltersBtn" class="btn btn-secondary" title="Clear all filters">✕ Clear</button>
+                    </div>
+                </div>
+                <div id="questionsContainer" class="questions-container">
+                    <p class="empty-state">No questions yet. Click "New Question" to add one.</p>
+                </div>
+            </section>
+
+            <!-- Collections View -->
+            <section id="collectionsView" class="view">
+                <div class="toolbar">
+                    <button id="newSubjectBtn" class="btn btn-primary">+ New Subject</button>
+                    <button id="newClassBtn" class="btn btn-secondary">+ New Class</button>
+                    <button id="newExamPeriodBtn" class="btn btn-secondary">+ New Exam Period</button>
+                </div>
+                <div id="collectionsContainer" class="collections-container">
+                    <p class="empty-state">No collections yet.</p>
+                </div>
+            </section>
+
+            <!-- Tests View -->
+            <section id="testsView" class="view">
+                <div class="toolbar">
+                    <div class="search-box">
+                        <input type="text" id="testSearchInput" placeholder="Search tests...">
+                        <button id="testSearchBtn" class="btn btn-secondary">🔍 Search</button>
+                    </div>
+                    <button id="clearTestSearchBtn" class="btn btn-secondary">Clear</button>
+                </div>
+                <div id="testsContainer" class="tests-container">
+                    <p class="empty-state">No tests generated yet.</p>
+                </div>
+            </section>
+        </main>
+        <footer class="app-footer">
+            <span>&copy; 2026 <a href="mailto:mabryant02@gmail.com">Mark Bryant</a></span>
+            <span class="app-footer-sep">&bull;</span>
+            <a href="help.html" target="_blank">&#10067; Help</a>
+            <span class="app-footer-sep">&bull;</span>
+            <div id="kofi-widget-container"></div>
+        </footer>
+    </div>
+
+    <!-- Modal: New/Edit Question -->
+    <div id="questionModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2 id="questionModalTitle">New Question</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="questionForm">
+                    <div class="form-group">
+                        <label>Question Type *</label>
+                        <select id="questionType" required>
+                            <option value="multiple-choice">Multiple Choice</option>
+                            <option value="true-false">True/False</option>
+                            <option value="short-answer">Short Answer</option>
+                            <option value="essay">Essay</option>
+                            <option value="matching">Matching</option>
+                            <option value="table">Table</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Question Text *</label>
+                        <textarea id="questionText" required rows="3"></textarea>
+                    </div>
+
+                    <div class="form-row form-row-3col">
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <select id="questionSubject">
+                                <option value="">Select Subject (Optional)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Class (Optional)</label>
+                            <select id="questionClass">
+                                <option value="">Select Class (Optional)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Exam Period (Optional)</label>
+                            <select id="questionExamPeriod">
+                                <option value="">Select Exam Period (Optional)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Multiple Choice Options -->
+                    <div id="multipleChoiceOptions" class="question-type-options">
+                        <div class="form-group">
+                            <label>Number of Choices</label>
+                            <input type="number" id="numChoices" min="2" max="10" value="4">
+                        </div>
+                        <div id="choicesContainer"></div>
+                    </div>
+
+                    <!-- True/False Options -->
+                    <div id="trueFalseOptions" class="question-type-options" style="display: none;">
+                        <div class="form-group">
+                            <label>Correct Answer *</label>
+                            <select id="tfAnswer">
+                                <option value="true">True</option>
+                                <option value="false">False</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Short Answer Options -->
+                    <div id="shortAnswerOptions" class="question-type-options" style="display: none;">
+                        <div class="form-group">
+                            <label>Sample Answer</label>
+                            <textarea id="shortAnswer" rows="2" placeholder="Provide a sample answer or key points"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Essay Options -->
+                    <div id="essayOptions" class="question-type-options" style="display: none;">
+                        <div class="form-group">
+                            <label>Grading Rubric / Key Points</label>
+                            <textarea id="essayRubric" rows="4" placeholder="Enter grading criteria or key points to cover"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Matching Options -->
+                    <div id="matchingOptions" class="question-type-options" style="display: none;">
+                        <div class="form-group">
+                            <label>Number of Pairs</label>
+                            <input type="number" id="numPairs" min="2" max="10" value="4">
+                        </div>
+                        <div id="pairsContainer"></div>
+                    </div>
+
+                    <!-- Table Options -->
+                    <div id="tableOptions" class="question-type-options" style="display: none;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Columns</label>
+                                <input type="number" id="tableCols" min="1" max="10" value="3">
+                            </div>
+                            <div class="form-group">
+                                <label>Rows</label>
+                                <input type="number" id="tableRows" min="1" max="20" value="3">
+                            </div>
+                            <div class="form-group" style="align-self: flex-end;">
+                                <button type="button" id="buildTableBtn" class="btn btn-secondary">Build Table</button>
+                            </div>
+                        </div>
+                        <div id="tableEditorContainer"></div>
+                        <p class="table-editor-hint"><strong>Q</strong> = question cell (shown on student test; non-Q cells are blank). <strong>B</strong> = bold text formatting (independent of Q).</p>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Question</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Generate Test -->
+    <div id="generateTestModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Generate Test</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="generateTestForm">
+                    <div class="form-group">
+                        <label>Test Title *</label>
+                        <input type="text" id="testTitle" required placeholder="e.g., Midterm Exam">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Subject *</label>
+                            <select id="testSubject" required>
+                                <option value="">Select Subject</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Class (Optional)</label>
+                            <select id="testClass">
+                                <option value="">All Classes</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Exam Period (Optional)</label>
+                            <select id="testExamPeriod">
+                                <option value="">All Exam Periods</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h3>Question Distribution</h3>
+                    <p id="sliderHint" class="slider-hint">Select a subject to see available questions.</p>
+                    <div id="questionSliders" class="question-sliders"></div>
+
+                    <div id="examPeriodMixSection" class="ep-mix-section" style="display:none">
+                        <h4>Exam Period Mix</h4>
+                        <p class="ep-mix-hint">No specific exam period selected — set what percentage of questions to draw from each period.</p>
+                        <div id="examPeriodMixContainer" class="ep-mix-container"></div>
+                        <div class="ep-mix-total">Total: <span id="epMixTotal">0</span>% <span id="epMixTotalMsg"></span></div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+                        <button type="submit" class="btn btn-success">Preview Test</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Test Preview -->
+    <div id="testPreviewModal" class="modal">
+        <div class="modal-content xlarge">
+            <div class="modal-header">
+                <h2>Test Preview & Editor</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Editing Toolbar -->
+                <div class="editor-toolbar">
+                    <div class="toolbar-section">
+                        <label>Edit Mode:</label>
+                        <button type="button" id="toggleEditModeBtn" class="btn btn-secondary btn-sm" title="Enable/Disable Editing">
+                            🔒 Locked
+                        </button>
+                    </div>
+                    <div class="toolbar-section" id="formatToolbar" style="display: none;">
+                        <label>Format:</label>
+                        <select id="fontSizeSelect" title="Font Size">
+                            <option value="8pt">8pt</option>
+                            <option value="9pt">9pt</option>
+                            <option value="10pt">10pt</option>
+                            <option value="11pt" selected>11pt</option>
+                            <option value="12pt">12pt</option>
+                            <option value="14pt">14pt</option>
+                            <option value="16pt">16pt</option>
+                            <option value="18pt">18pt</option>
+                            <option value="20pt">20pt</option>
+                            <option value="24pt">24pt</option>
+                            <option value="28pt">28pt</option>
+                            <option value="32pt">32pt</option>
+                        </select>
+                        <input type="color" id="textColorPicker" value="#000000" title="Text Color">
+                        <button type="button" id="boldBtn" class="btn btn-sm" title="Bold"><strong>B</strong></button>
+                        <button type="button" id="italicBtn" class="btn btn-sm" title="Italic"><em>I</em></button>
+                        <button type="button" id="underlineBtn" class="btn btn-sm" title="Underline"><u>U</u></button>
+                        <span style="border-left: 1px solid var(--border-color); height: 24px; margin: 0 0.5rem;"></span>
+                        <button type="button" id="alignLeftBtn" class="btn btn-sm" title="Align Left">←</button>
+                        <button type="button" id="alignCenterBtn" class="btn btn-sm" title="Align Center">↕</button>
+                        <button type="button" id="alignRightBtn" class="btn btn-sm" title="Align Right">→</button>
+                    </div>
+                    <div class="toolbar-section" id="metadataToolbar" style="display: none;">
+                        <button type="button" id="editMetadataBtn" class="btn btn-primary btn-sm">📝 Customize Info</button>
+                    </div>
+                </div>
+                
+                <div id="testPreviewContent" class="test-preview">
+                    <!-- Test content will be rendered here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+                    <button type="button" id="randomizeQuestionsBtn" class="btn btn-secondary">🎲 Randomize Order</button>
+                    <button type="button" id="saveTestBtn" class="btn btn-primary">💾 Save Test</button>
+                    <button type="button" id="editTestBtn" class="btn btn-primary">📝 Edit Questions</button>
+                    <button type="button" id="exportTestBtn" class="btn btn-success">📄 Export Test</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Test Metadata -->
+    <div id="editMetadataModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Test Header Information</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="metadataForm">
+                    <div class="form-group">
+                        <label>Test Title <span style="color:var(--danger-color)">*</span> <span style="font-weight:normal;font-size:0.85rem;color:var(--secondary-color);">(always shown)</span></label>
+                        <input type="text" id="metaTitle" required>
+                    </div>
+
+                    <h3 style="margin:1.2rem 0 0.5rem;color:var(--primary-color);">Header Fields</h3>
+                    <p style="font-size:0.85rem;color:var(--secondary-color);margin-bottom:0.75rem;">Check each field to show it on the test</p>
+
+                    <div class="form-group meta-toggle-group">
+                        <label class="meta-toggle-label">
+                            <input type="checkbox" id="metaShowNameLine" class="meta-show-cb">
+                            Name line <span class="meta-hint">(Name: _______________)</span>
+                        </label>
+                    </div>
+                    <div class="form-group meta-toggle-group">
+                        <label class="meta-toggle-label">
+                            <input type="checkbox" id="metaDoNotWrite" class="meta-show-cb">
+                            "Do not write on this exam"
+                        </label>
+                    </div>
+                    <div class="form-group meta-toggle-group">
+                        <label class="meta-toggle-label">
+                            <input type="checkbox" id="metaShowDate" class="meta-show-cb">
+                            Date
+                        </label>
+                        <input type="text" id="metaDate" class="meta-toggle-input">
+                    </div>
+                    <div class="form-group meta-toggle-group">
+                        <label class="meta-toggle-label">
+                            <input type="checkbox" id="metaShowSubject" class="meta-show-cb">
+                            Subject
+                        </label>
+                        <input type="text" id="metaSubject" class="meta-toggle-input">
+                    </div>
+                    <div class="form-group meta-toggle-group">
+                        <label class="meta-toggle-label">
+                            <input type="checkbox" id="metaShowClass" class="meta-show-cb">
+                            Class
+                        </label>
+                        <input type="text" id="metaClass" class="meta-toggle-input">
+                    </div>
+                    <div class="form-group meta-toggle-group">
+                        <label class="meta-toggle-label">
+                            <input type="checkbox" id="metaShowVersion" class="meta-show-cb">
+                            Test Version
+                        </label>
+                        <input type="text" id="metaVersion" placeholder="e.g., Version A, Form 1" class="meta-toggle-input">
+                    </div>
+                    <div class="form-group meta-toggle-group">
+                        <label class="meta-toggle-label">
+                            <input type="checkbox" id="metaShowTotalQuestions" class="meta-show-cb">
+                            Total Questions
+                        </label>
+                    </div>
+                    <div class="form-group meta-toggle-group">
+                        <label class="meta-toggle-label">
+                            <input type="checkbox" id="metaShowInstructions" class="meta-show-cb">
+                            Instructions
+                        </label>
+                        <textarea id="metaInstructions" rows="3" class="meta-toggle-input"></textarea>
+                    </div>
+                    <div class="form-group meta-toggle-group">
+                        <label class="meta-toggle-label">
+                            <input type="checkbox" id="metaShowAnswerLinesSA" class="meta-show-cb">
+                            Show answer lines for short answer
+                        </label>
+                    </div>
+                    <div class="form-group meta-toggle-group">
+                        <label class="meta-toggle-label">
+                            <input type="checkbox" id="metaShowAnswerLinesEssay" class="meta-show-cb">
+                            Show answer lines for essay
+                        </label>
+                    </div>
+                    <div class="form-group meta-toggle-group">
+                        <label class="meta-toggle-label">
+                            <input type="checkbox" id="metaShowSectionHr" class="meta-show-cb" checked>
+                            Show rule under section headers
+                        </label>
+                    </div>
+                    <div class="form-group meta-toggle-group">
+                        <label class="meta-toggle-label">
+                            <input type="checkbox" id="metaShowPageNumbers" class="meta-show-cb" checked>
+                            Show page numbers in footer
+                        </label>
+                    </div>
+                    
+                    <h3 style="margin-top: 1.5rem; margin-bottom: 1rem; color: var(--primary-color);">Section Instructions</h3>
+                    <p style="font-size: 0.9rem; color: var(--secondary-color); margin-bottom: 1rem;">Optional instructions for each question type section</p>
+                    
+                    <div class="form-group">
+                        <label>Multiple Choice Instructions</label>
+                        <textarea id="metaInstrMultipleChoice" rows="2" placeholder="e.g., Choose the best answer for each question."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>True/False Instructions</label>
+                        <textarea id="metaInstrTrueFalse" rows="2" placeholder="e.g., Mark T for True or F for False."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Short Answer Instructions</label>
+                        <textarea id="metaInstrShortAnswer" rows="2" placeholder="e.g., Write a brief answer in the space provided."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Essay Instructions</label>
+                        <textarea id="metaInstrEssay" rows="2" placeholder="e.g., Write a detailed response."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Matching Instructions</label>
+                        <textarea id="metaInstrMatching" rows="2" placeholder="e.g., Match items in the left column with the right column."></textarea>
+                    </div>
+                    
+                    <div class="form-group meta-toggle-group" style="margin-top:0.5rem;">
+                        <label class="meta-toggle-label">
+                            <input type="checkbox" id="metaShowCustomFields" class="meta-show-cb">
+                            Show custom fields on test
+                        </label>
+                    </div>
+                    <div id="customFieldsContainer"></div>
+                    <div class="form-group">
+                        <button type="button" id="addCustomFieldBtn" class="btn btn-secondary btn-sm">+ Add Custom Field</button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Apply Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Export Options -->
+    <div id="exportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Export Test</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Choose export format:</p>
+                <div class="export-options">
+                    <button id="exportPdfBtn" class="btn btn-primary btn-large">📄 Export as PDF</button>
+                    <button id="exportDocxBtn" class="btn btn-primary btn-large">📝 Export as DOCX</button>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="includeAnswers">
+                        Include Answer Key
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Test Questions -->
+    <div id="editTestModal" class="modal">
+        <div class="modal-content xlarge">
+            <div class="modal-header">
+                <h2>Edit Test Questions</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <!-- Current Questions Panel -->
+                    <div>
+                        <h3>Current Test Questions</h3>
+                        <div id="editTestContent" class="edit-test-content" style="max-height: 500px; overflow-y: auto;">
+                            <!-- Editable test questions will be rendered here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Add Questions Panel -->
+                    <div>
+                        <h3>Add Questions from Database</h3>
+                        <div class="toolbar" style="margin-bottom: 1rem;">
+                            <div class="search-box">
+                                <input type="text" id="editTestSearchInput" placeholder="Search questions...">
+                            </div>
+                            <div class="filter-box" style="margin-top: 0.5rem;">
+                                <select id="editTestFilterSubject">
+                                    <option value="">All Subjects</option>
+                                </select>
+                                <select id="editTestFilterClass">
+                                    <option value="">All Classes</option>
+                                </select>
+                                <select id="editTestFilterExamPeriod">
+                                    <option value="">All Exam Periods</option>
+                                </select>
+                                <select id="editTestFilterType">
+                                    <option value="">All Types</option>
+                                    <option value="multiple-choice">Multiple Choice</option>
+                                    <option value="true-false">True/False</option>
+                                    <option value="short-answer">Short Answer</option>
+                                    <option value="essay">Essay</option>
+                                    <option value="matching">Matching</option>
+                                    <option value="table">Table</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="availableQuestionsContainer" style="max-height: 450px; overflow-y: auto;">
+                            <!-- Available questions will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+                    <button type="button" id="saveTestEditsBtn" class="btn btn-primary">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: New Subject -->
+    <div id="subjectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Subject</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="subjectForm">
+                    <div class="form-group">
+                        <label>Subject Name *</label>
+                        <input type="text" id="subjectName" required placeholder="e.g., Mathematics, History">
+                    </div>
+                    <div class="form-group">
+                        <label>Description (Optional)</label>
+                        <textarea id="subjectDescription" rows="3" placeholder="Brief description of this subject"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Subject</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: New Class -->
+    <div id="classModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Class</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="classForm">
+                    <div class="form-group">
+                        <label>Subject *</label>
+                        <select id="classSubject" required>
+                            <option value="">Select Subject</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Class Name *</label>
+                        <input type="text" id="className" required placeholder="e.g., Grade 10, Advanced, Section A">
+                    </div>
+                    <div class="form-group">
+                        <label>Description (Optional)</label>
+                        <textarea id="classDescription" rows="3" placeholder="Brief description of this class"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Class</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: New Exam Period -->
+    <div id="examPeriodModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>New Exam Period</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="examPeriodForm">
+                    <div class="form-group">
+                        <label>Subject *</label>
+                        <select id="examPeriodSubject" required>
+                            <option value="">Select Subject</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Class *</label>
+                        <select id="examPeriodClass" required>
+                            <option value="">Select Class</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Exam Period Name *</label>
+                        <input type="text" id="examPeriodName" required placeholder="e.g., Midterm, Final Exam, Q1, Term 2">
+                    </div>
+                    <div class="form-group">
+                        <label>Description (Optional)</label>
+                        <textarea id="examPeriodDescription" rows="3" placeholder="Brief description of this exam period"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Exam Period</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Import Database -->
+    <div id="importDatabaseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Import Database</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Select a JSON file to import. This will add the data to your existing database.</p>
+                <p><strong>Warning:</strong> Duplicate entries may be created.</p>
+                <div class="form-group">
+                    <label>Select File</label>
+                    <input type="file" id="importFileInput" accept=".json">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+                    <button type="button" id="confirmImportBtn" class="btn btn-primary">Import</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Clear Database Confirmation -->
+    <div id="clearDatabaseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Clear Database</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>⚠️ Warning: This action cannot be undone!</strong></p>
+                <p>This will permanently delete:</p>
+                <ul>
+                    <li>All questions</li>
+                    <li>All subjects and classes</li>
+                    <li>All saved tests</li>
+                </ul>
+                <p>Are you sure you want to continue?</p>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+                    <button type="button" id="confirmClearBtn" class="btn btn-danger">Yes, Clear Everything</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Exam Period Fallback -->
+    <div id="fallbackModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2>Not Enough Questions in Some Periods</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="fallback-intro">The weighted allocation can't be satisfied exactly. Review each shortfall and choose which other exam period(s) to pull the missing questions from.</p>
+                <div id="fallbackShortfallList"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="fallbackCancelBtn">Cancel</button>
+                <button type="button" class="btn btn-primary" id="fallbackConfirmBtn">Generate with Fallbacks</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/docx@7.8.2/build/index.js"></script>
+    <script src="database.js"></script>
+    <script src="pdf-generator.js"></script>
+    <script src="docx-generator.js"></script>
+    <script src="app.js"></script>
+    <script src="https://storage.ko-fi.com/cdn/widget/Widget_2.js"></script>
+    <script>
+        kofiwidget2.init('Tip the developer! Thanks!', '#72a4f2', 'W7W31VACQP');
+        (function() {
+            var container = document.getElementById('kofi-widget-container');
+            if (typeof kofiwidget2.getHTML === 'function') {
+                container.innerHTML = kofiwidget2.getHTML();
+            } else {
+                kofiwidget2.draw();
+                setTimeout(function() {
+                    var btn = document.querySelector('.kofi-button');
+                    if (btn && container) container.appendChild(btn);
+                }, 0);
+            }
+        })();
+    </script>
+</body>
+</html>

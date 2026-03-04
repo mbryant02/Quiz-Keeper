@@ -1,0 +1,694 @@
+<!--     This file is part of Quiz Keeper, a test generation and question bank tool. (C) 2026 by Mark Bryant.
+
+    Quiz Keeper is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+    Quiz Keeper is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along with Quiz Keeper. If not, see <https://www.gnu.org/licenses/>. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Keeper – User Guide</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
+            --danger-border: #fca5a5;
+            --warning: #d97706;
+            --warning-bg: #fffbeb;
+            --warning-border: #fcd34d;
+            --success: #16a34a;
+            --success-bg: #f0fdf4;
+            --success-border: #86efac;
+            --body-bg: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --code-bg: #f1f5f9;
+            --sidebar-width: 260px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--body-bg);
+            color: var(--text);
+            line-height: 1.65;
+            display: flex;
+        }
+
+        /* ── Sidebar ── */
+        #sidebar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            overflow-y: auto;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem 1rem;
+            z-index: 100;
+        }
+
+        #sidebar h2 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        #sidebar nav a {
+            display: block;
+            padding: 0.35rem 0.6rem;
+            border-radius: 6px;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 0.875rem;
+            margin-bottom: 0.1rem;
+            transition: background 0.15s;
+        }
+
+        #sidebar nav a:hover { background: var(--body-bg); }
+
+        #sidebar nav a.sub {
+            padding-left: 1.4rem;
+            color: var(--text-muted);
+            font-size: 0.825rem;
+        }
+
+        #sidebar .brand {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        /* ── Main ── */
+        #main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            max-width: 860px;
+            padding: 3rem 2.5rem;
+        }
+
+        /* ── Typography ── */
+        h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text); }
+        h2 { font-size: 1.4rem; font-weight: 700; margin: 2.5rem 0 0.75rem; color: var(--text); border-bottom: 2px solid var(--border); padding-bottom: 0.4rem; }
+        h3 { font-size: 1.05rem; font-weight: 700; margin: 1.5rem 0 0.4rem; color: var(--primary-dark); }
+        h4 { font-size: 0.95rem; font-weight: 700; margin: 1rem 0 0.3rem; color: var(--text); }
+        p  { margin-bottom: 0.85rem; }
+        ul, ol { padding-left: 1.4rem; margin-bottom: 0.85rem; }
+        li { margin-bottom: 0.3rem; }
+        a  { color: var(--primary); }
+
+        code {
+            font-family: 'Cascadia Code', 'Fira Code', monospace;
+            background: var(--code-bg);
+            padding: 0.1em 0.35em;
+            border-radius: 4px;
+            font-size: 0.88em;
+        }
+
+        kbd {
+            display: inline-block;
+            padding: 0.1em 0.5em;
+            font-size: 0.8em;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background: #f1f5f9;
+            box-shadow: 0 1px 0 #94a3b8;
+            font-family: inherit;
+        }
+
+        /* ── Callouts ── */
+        .callout {
+            display: flex;
+            gap: 0.75rem;
+            border-radius: 8px;
+            padding: 1rem 1.1rem;
+            margin: 1rem 0 1.25rem;
+            border: 1px solid;
+        }
+        .callout .icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 0.05rem; }
+        .callout.danger  { background: var(--danger-bg);  border-color: var(--danger-border);  }
+        .callout.warning { background: var(--warning-bg); border-color: var(--warning-border); }
+        .callout.success { background: var(--success-bg); border-color: var(--success-border); }
+        .callout.info    { background: #eff6ff; border-color: #93c5fd; }
+        .callout.danger  .icon { color: var(--danger);  }
+        .callout.warning .icon { color: var(--warning); }
+        .callout.success .icon { color: var(--success); }
+        .callout.info    .icon { color: var(--primary); }
+        .callout-body { flex: 1; }
+        .callout-body p:last-child { margin-bottom: 0; }
+        .callout strong { display: block; margin-bottom: 0.2rem; font-size: 0.95rem; }
+
+        /* ── Steps ── */
+        .steps { counter-reset: step; padding-left: 0; list-style: none; }
+        .steps li {
+            counter-increment: step;
+            position: relative;
+            padding: 0.6rem 0.6rem 0.6rem 3rem;
+            margin-bottom: 0.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .steps li::before {
+            content: counter(step);
+            position: absolute;
+            left: 0.75rem;
+            top: 0.6rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: var(--primary);
+            color: #fff;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ── Table ── */
+        table { width: 100%; border-collapse: collapse; margin: 0.75rem 0 1rem; font-size: 0.875rem; }
+        th { background: var(--code-bg); font-weight: 700; text-align: left; padding: 0.5rem 0.75rem; border: 1px solid var(--border); }
+        td { padding: 0.45rem 0.75rem; border: 1px solid var(--border); vertical-align: top; }
+        tr:nth-child(even) td { background: #fafafa; }
+
+        /* ── Section divider ── */
+        section { padding-top: 0.5rem; margin-bottom: 1rem; }
+
+        /* ── Hero ── */
+        .hero {
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+            color: #fff;
+            border-radius: 12px;
+            padding: 2rem 2rem 1.75rem;
+            margin-bottom: 2rem;
+        }
+        .hero h1 { color: #fff; margin-bottom: 0.35rem; }
+        .hero p  { color: #bfdbfe; margin-bottom: 0; font-size: 1rem; }
+
+        /* ── Badge ── */
+        .badge {
+            display: inline-block;
+            padding: 0.2em 0.55em;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            vertical-align: middle;
+        }
+        .badge-mc    { background: #dbeafe; color: #1d4ed8; }
+        .badge-tf    { background: #dcfce7; color: #15803d; }
+        .badge-sa    { background: #fef3c7; color: #b45309; }
+        .badge-essay { background: #fce7f3; color: #9d174d; }
+        .badge-match { background: #ede9fe; color: #5b21b6; }
+        .badge-table { background: #e0f2fe; color: #0369a1; }
+
+        /* ── Responsive ── */
+        @media (max-width: 700px) {
+            #sidebar { display: none; }
+            #main { margin-left: 0; padding: 1.5rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
+<aside id="sidebar">
+    <a href="#top" class="brand">📚 Quiz Keeper</a>
+    <h2>Contents</h2>
+    <nav>
+        <a href="#overview">Overview</a>
+        <a href="#backup" style="color:var(--danger);font-weight:700;">⚠️ Database Backup</a>
+        <a href="#interface">Interface Layout</a>
+        <a href="#collections">Collections</a>
+        <a class="sub" href="#subjects">Subjects</a>
+        <a class="sub" href="#classes">Classes</a>
+        <a class="sub" href="#exam-periods">Exam Periods</a>
+        <a href="#questions">Questions</a>
+        <a class="sub" href="#question-types">Question Types</a>
+        <a class="sub" href="#adding-questions">Adding a Question</a>
+        <a class="sub" href="#editing-questions">Editing &amp; Deleting</a>
+        <a class="sub" href="#filtering-questions">Searching &amp; Filtering</a>
+        <a href="#generate">Generating a Test</a>
+        <a class="sub" href="#question-distribution">Question Distribution</a>
+        <a class="sub" href="#exam-period-mix">Exam Period Mix</a>
+        <a href="#preview">Test Preview &amp; Editor</a>
+        <a class="sub" href="#edit-mode">Rich Edit Mode</a>
+        <a class="sub" href="#metadata">Header / Metadata</a>
+        <a class="sub" href="#edit-questions">Adding / Removing Questions</a>
+        <a href="#export">Exporting a Test</a>
+        <a class="sub" href="#pdf-export">PDF Export</a>
+        <a class="sub" href="#docx-export">DOCX Export</a>
+        <a href="#history">Test History</a>
+        <a href="#database">Database Management</a>
+        <a class="sub" href="#export-db">Export Database</a>
+        <a class="sub" href="#import-db">Import Database</a>
+        <a class="sub" href="#clear-db">Clear Database</a>
+        <a href="#tips">Tips &amp; Best Practices</a>
+    </nav>
+</aside>
+
+<!-- ═══════════════════════════════ MAIN ════════════════════════════════ -->
+<main id="main">
+
+    <div id="top" class="hero">
+        <h1>📚 Quiz Keeper</h1>
+        <p>Complete user guide — building questions, generating tests, and working with exports.</p>
+    </div>
+
+    <!-- ───────────────────────── OVERVIEW ───────────────────────── -->
+    <section id="overview">
+        <h2>Overview</h2>
+        <p>Quiz Keeper is a browser-based tool that lets you build and maintain a reusable question bank, then quickly compose, preview, and export professional tests as PDF or Word (DOCX) documents. All data is stored locally in your browser using IndexedDB — no continued server or internet connection is required after the page loads.</p>
+
+        <div class="callout info">
+            <div class="icon">ℹ️</div>
+            <div class="callout-body">
+                <strong>Local Storage</strong>
+                <p>Because all data lives in your browser's site data, clearing browser data or switching to another device permanently can lose your questions data file.</p> <p>If you switch browsers, or use a different machine <strong>your question bank will not be available unless you have the database file with you for import,</strong> either backed up on a drive or in cloud, but it should be safe where you originally started it. See <a href="#backup">Database Backup</a> below.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───────────────────────── BACKUP ───────────────────────── -->
+    <section id="backup">
+        <h2>⚠️ Database Backup — Read This First</h2>
+
+        <div class="callout danger">
+            <div class="icon">🚨</div>
+            <div class="callout-body">
+                <strong>Your data can be lost permanently without a backup.</strong>
+                <p>The following actions will or may <em>irreversibly</em> erase your entire question bank and test history:</p>
+                <ul>
+                    <li>Clicking <strong>⚙️ Database → 🗑️ Clear Database</strong></li>
+                    <li>Clearing your browser's site data or cache</li>
+                    <li>Uninstalling or resetting your browser</li>
+                    <li>Using a different browser or computer</li>
+                    <li>Browser storage eviction (low disk space)</li>
+                </ul>
+                <p style="margin-top:0.5rem;"><strong>There is no undo.</strong> Always keep a current backup file on an external drive or cloud storage.</p>
+            </div>
+        </div>
+
+        <h3>How to Back Up</h3>
+        <ol class="steps">
+            <li>Click <strong>⚙️ Database</strong> in the top-right header.</li>
+            <li>Click <strong>💾 Export Database</strong>.</li>
+            <li>A <code>.json</code> file is downloaded automatically. Save it somewhere safe — a cloud folder, external drive, or email it to yourself.</li>
+        </ol>
+
+        <div class="callout warning">
+            <div class="icon">💡</div>
+            <div class="callout-body">
+                <strong>Recommended backup schedule</strong>
+                <p>Export the database after every significant session of adding or editing questions. The backup database files are prenamed with the export date, but if you wish to rename them it is recommended to include the date (e.g., <code>questionbank_2026-03-02.json</code>) so you can roll back to an earlier version if needed.</p>
+            </div>
+        </div>
+
+        <h3>How to Restore from a Backup</h3>
+        <ol class="steps">
+            <li>Click <strong>⚙️ Database → 📂 Import Database</strong>.</li>
+            <li>Select your previously exported <code>.json</code> backup file.</li>
+            <li>Click <strong>Import</strong>. The data will be merged into the current database.</li>
+        </ol>
+
+        <div class="callout warning">
+            <div class="icon">⚠️</div>
+            <div class="callout-body">
+                <strong>Merges, not replaces</strong>
+                <p>Importing <em>adds</em> data on top of what already exists. If you import the same file twice, duplicate questions will appear. To restore to a clean state, <a href="#clear-db">clear the database first</a>, then import.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───────────────────────── INTERFACE ───────────────────────── -->
+    <section id="interface">
+        <h2>Interface Layout</h2>
+
+        <table>
+            <thead><tr><th>Area</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Header bar</strong></td><td>Contains <kbd>+ New Question</kbd>, <kbd>Generate Test</kbd>, dark-mode toggle, and the <kbd>⚙️ Database</kbd> menu.</td></tr>
+                <tr><td><strong>Navigation tabs</strong></td><td>Switch between <em>Questions</em>, <em>Collections</em>, and <em>Test History</em> views.</td></tr>
+                <tr><td><strong>Questions view</strong></td><td>All questions in the bank, with search and filter controls.</td></tr>
+                <tr><td><strong>Collections view</strong></td><td>Manage Subjects, Classes, and Exam Periods.</td></tr>
+                <tr><td><strong>Test History view</strong></td><td>Previously saved tests — reopen, re-export, or reshuffle them.</td></tr>
+            </tbody>
+        </table>
+
+        <p>Click the <strong>🌙 Dark / ☀️ Light</strong> button to toggle dark mode. The preference is saved between sessions.</p>
+    </section>
+
+    <!-- ───────────────────────── COLLECTIONS ───────────────────────── -->
+    <section id="collections">
+        <h2>Collections</h2>
+        <p>Collections (Subjects, Classes, and Exam Periods) are the organisational backbone of the question bank. Set these up before adding questions so that every question can be tagged and filtered correctly.</p>
+
+        <p>Go to the <strong>Collections</strong> tab to manage them.</p>
+
+        <h3 id="subjects">Subjects</h3>
+        <p>A Subject is the top-level category (e.g., <em>Biology</em>, <em>Mathematics</em>, <em>World History</em>). Every Class and Exam Period belongs to a Subject.</p>
+        <p>Click <kbd>+ New Subject</kbd>, enter a name and optional description, then click <kbd>Save Subject</kbd>.</p>
+
+        <h3 id="classes">Classes</h3>
+        <p>A Class belongs to a Subject and represents a specific group of students (e.g., <em>Grade 10A</em>, <em>Advanced Placement</em>). Classes allow you to scope questions and tests to particular groups.</p>
+        <ol class="steps">
+            <li>Click <kbd>+ New Class</kbd>.</li>
+            <li>Select the parent <strong>Subject</strong>.</li>
+            <li>Enter a <strong>Class Name</strong> and optional description.</li>
+            <li>Click <kbd>Save Class</kbd>.</li>
+        </ol>
+
+        <h3 id="exam-periods">Exam Periods</h3>
+        <p>Exam Periods belong to a Subject <em>and</em> a Class (e.g., <em>Midterm</em>, <em>Final Exam</em>, <em>Q2</em>). They let you draw proportional mixes of questions across different syllabus periods when generating a test.</p>
+        <ol class="steps">
+            <li>Click <kbd>+ New Exam Period</kbd>.</li>
+            <li>Select the parent <strong>Subject</strong>, then the parent <strong>Class</strong>.</li>
+            <li>Enter an <strong>Exam Period Name</strong> and optional description.</li>
+            <li>Click <kbd>Save Exam Period</kbd>.</li>
+        </ol>
+
+        <div class="callout info">
+            <div class="icon">ℹ️</div>
+            <div class="callout-body">
+                <p>Deleting a Subject or Class will not delete the questions tagged to them — their subject/class fields will appear as unlinked text. You can re-tag questions individually if needed.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───────────────────────── QUESTIONS ───────────────────────── -->
+    <section id="questions">
+        <h2>Questions</h2>
+
+        <h3 id="question-types">Question Types</h3>
+        <table>
+            <thead><tr><th>Type</th><th>What you configure</th><th>Exported answer key</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><span class="badge badge-mc">Multiple Choice</span></td>
+                    <td>2–10 choices; mark one as correct.</td>
+                    <td>Correct letter (A, B, C…)</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-tf">True / False</span></td>
+                    <td>Select True or False as the answer.</td>
+                    <td>True or False</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-sa">Short Answer</span></td>
+                    <td>Optional sample answer text.</td>
+                    <td>Sample answer text</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-essay">Essay</span></td>
+                    <td>Optional grading rubric / key points.</td>
+                    <td>Rubric text</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-match">Matching</span></td>
+                    <td>2–10 left/right pairs. Right-column items are shuffled when exported.</td>
+                    <td>Numbered mapping (1→B, 2→A…)</td>
+                </tr>
+                <tr>
+                    <td><span class="badge badge-table">Table</span></td>
+                    <td>Grid of cells. Mark cells as <strong>Q</strong> (question — shown on student copy; others are blank) and/or <strong>B</strong> (bold text).</td>
+                    <td>Full table with all answers filled in</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 id="adding-questions">Adding a Question</h3>
+        <ol class="steps">
+            <li>Click <kbd>+ New Question</kbd> in the header.</li>
+            <li>Choose a <strong>Question Type</strong> from the dropdown.</li>
+            <li>Type the <strong>Question Text</strong>. You may include any characters; special Unicode symbols (arrows, Greek letters, etc.) are automatically converted to safe ASCII equivalents in PDF exports.</li>
+            <li>Optionally assign a <strong>Subject</strong>, <strong>Class</strong>, and <strong>Exam Period</strong>. The Class and Exam Period dropdowns are filtered by the selected Subject.</li>
+            <li>Fill in the type-specific section (choices, pairs, table cells, etc.).</li>
+            <li>Click <kbd>Save Question</kbd>.</li>
+        </ol>
+
+        <h4>Multiple Choice specifics</h4>
+        <ul>
+            <li>Set the number of choices (2–10) in the <em>Number of Choices</em> field.</li>
+            <li>Enter text for each choice, then click the <strong>Correct</strong> radio button next to the right answer.</li>
+        </ul>
+
+        <h4>Matching specifics</h4>
+        <ul>
+            <li>Set the number of pairs (2–10).</li>
+            <li>Enter left and right items for each pair. Right-column items are randomly shuffled when the test is generated so students cannot guess by position.</li>
+        </ul>
+
+        <h4>Table specifics</h4>
+        <ul>
+            <li>Enter the number of <strong>Columns</strong> and <strong>Rows</strong>, then click <kbd>Build Table</kbd>.</li>
+            <li>Type content into each cell.</li>
+            <li>Click the <kbd>Q</kbd> button on cells that should appear as blank answer fields on the student copy. Non-Q cells are hidden.</li>
+            <li>Click the <kbd>B</kbd> button on any cell to apply bold text formatting.</li>
+        </ul>
+
+        <h3 id="editing-questions">Editing &amp; Deleting</h3>
+        <p>Each question card in the Questions view has <kbd>Edit</kbd> and <kbd>Delete</kbd> buttons. Editing opens the same form pre-filled with the existing data. Deletion is immediate — there is no undo, so <a href="#backup">keep regular backups</a>.</p>
+
+        <h3 id="filtering-questions">Searching &amp; Filtering</h3>
+        <p>Use the toolbar in the Questions view to narrow down the list:</p>
+        <ul>
+            <li><strong>Search box</strong> — matches against question text. Press <kbd>Enter</kbd> or click 🔍.</li>
+            <li><strong>Subject / Class / Exam Period / Type dropdowns</strong> — any combination of filters can be active at once.</li>
+            <li><kbd>✕ Clear</kbd> — removes all active filters and shows the full question bank.</li>
+        </ul>
+    </section>
+
+    <!-- ───────────────────────── GENERATE ───────────────────────── -->
+    <section id="generate">
+        <h2>Generating a Test</h2>
+        <p>Click <kbd>Generate Test</kbd> in the header to open the test configuration form.</p>
+
+        <ol class="steps">
+            <li>Enter a <strong>Test Title</strong> (required).</li>
+            <li>Select the <strong>Subject</strong>. Only subjects with questions in the bank appear here.</li>
+            <li>Optionally narrow to a specific <strong>Class</strong> and/or <strong>Exam Period</strong>.</li>
+            <li>Use the <strong>Question Distribution</strong> sliders to set how many questions of each type to include.</li>
+            <li>If no specific Exam Period was chosen, configure the <strong>Exam Period Mix</strong> (see below).</li>
+            <li>Click <kbd>Preview Test</kbd>.</li>
+        </ol>
+
+        <h3 id="question-distribution">Question Distribution Sliders</h3>
+        <p>After selecting a Subject (and optionally a Class and Exam Period), the sliders section shows one slider per question type that has available questions. Each slider shows the range <code>0</code> to the maximum available for that type.</p>
+        <ul>
+            <li>The count you set is the number of questions that will be <strong>randomly drawn</strong> from the pool for that type.</li>
+            <li>Setting a slider to <code>0</code> excludes that type entirely.</li>
+            <li>The total question count updates in real time.</li>
+        </ul>
+
+        <h3 id="exam-period-mix">Exam Period Mix</h3>
+        <p>This section appears only when <em>no specific exam period is selected</em>. It lets you specify what percentage of questions to draw from each exam period in the pool so a cumulative or mixed exam is proportionally balanced.</p>
+        <ul>
+            <li>Each exam period has a percentage slider (0–100).</li>
+            <li>Sliders <em>auto-balance</em> as you adjust them so the total always reaches 100%.</li>
+            <li>The total indicator turns green at exactly 100% and red when over or under.</li>
+            <li>If a period doesn't have enough questions to satisfy its allocation, a <strong>Fallback dialog</strong> appears after clicking <kbd>Preview Test</kbd>, letting you redirect the shortfall to another period or omit the missing questions.</li>
+        </ul>
+
+        <div class="callout info">
+            <div class="icon">ℹ️</div>
+            <div class="callout-body">
+                <p>Questions not assigned to any exam period are labelled <em>(No Exam Period)</em> and can still be included in the mix.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───────────────────────── PREVIEW ───────────────────────── -->
+    <section id="preview">
+        <h2>Test Preview &amp; Editor</h2>
+        <p>After clicking <kbd>Preview Test</kbd>, a full live preview of the test is shown. It looks exactly as it will print. From here you can edit, save, randomise, and export.</p>
+
+        <h3 id="edit-mode">Rich Edit Mode</h3>
+        <p>Click <kbd>🔒 Locked</kbd> to enable editing. The button changes to <kbd>✏️ Editing</kbd> and a formatting toolbar appears.</p>
+        <ul>
+            <li><strong>Font size</strong> — 8pt to 32pt.</li>
+            <li><strong>Text colour</strong> — colour picker applied to selected text.</li>
+            <li><strong>Bold / Italic / Underline</strong> — standard rich text formatting.</li>
+            <li><strong>Alignment</strong> — left, centre, or right for selected paragraphs.</li>
+        </ul>
+        <p>Click inside any text in the preview, select the text you want to change, then apply formatting. Changes appear live. This implementation is currently not as feature rich as a full word processor so if you need more advanced editing for fonts, tabs, images etc. I suggest you edit the exported test file in your word processor of choice. <strong>The exception to this advice is removing questions from the test, if you remove or replace questions from the test preview screen, the test questions will be automatically renumbered. If you delete a question in a word processor, the question numbers are not a true numbered list so they will not automatically update.</strong></p>
+
+        <div class="callout warning">
+            <div class="icon">⚠️</div>
+            <div class="callout-body">
+                <p>Rich-text formatting applied in the preview affects the printed/exported layout, but does <em>not</em> update the stored question text in the database. Use <a href="#editing-questions">Edit Question</a> for permanent question changes.</p>
+            </div>
+        </div>
+
+        <h3 id="metadata">Header / Metadata</h3>
+        <p>Click <kbd>📝 Customize Info</kbd> (visible when edit mode is unlocked) to configure what appears at the top of the test.</p>
+
+        <table>
+            <thead><tr><th>Field</th><th>Notes</th></tr></thead>
+            <tbody>
+                <tr><td>Test Title</td><td>Always shown. Required.</td></tr>
+                <tr><td>Name line</td><td>Adds a blank <em>Name: _______________</em> field.</td></tr>
+                <tr><td>"Do not write on this exam"</td><td>Adds a bold italic notice.</td></tr>
+                <tr><td>Date</td><td>Toggle on and edit the date text.</td></tr>
+                <tr><td>Subject / Class / Test Version</td><td>Toggle on and edit each value individually.</td></tr>
+                <tr><td>Total Questions</td><td>Automatically counted — toggle to show or hide.</td></tr>
+                <tr><td>Instructions</td><td>General instructions block below the header.</td></tr>
+                <tr><td>Answer lines (Short Answer)</td><td>Adds blank writing lines under each short answer question.</td></tr>
+                <tr><td>Answer lines (Essay)</td><td>Adds blank writing lines under each essay question.</td></tr>
+                <tr><td>Section header rule</td><td>Shows a horizontal line under each section heading.</td></tr>
+                <tr><td>Section Instructions</td><td>Per-type instruction text (e.g., "Circle the best answer" for Multiple Choice).</td></tr>
+                <tr><td>Custom Fields</td><td>Add any number of label/value pairs (e.g., <em>Teacher: Ms. Smith</em>). Toggle visibility on the test.</td></tr>
+            </tbody>
+        </table>
+
+        <h3 id="edit-questions">Adding / Removing Questions</h3>
+        <p>Click <kbd>📝 Edit Questions</kbd> in the preview footer to open the question editor panel.</p>
+        <ul>
+            <li><strong>Left panel</strong> — current questions in the test. Drag to reorder, or click the remove button to drop a question.</li>
+            <li><strong>Right panel</strong> — the full question bank. Use the search box and filters to find questions, then click <kbd>+ Add</kbd> to insert them into the test.</li>
+            <li>Click <kbd>Save Changes</kbd> to apply and return to the preview.</li>
+        </ul>
+
+        <h3>Other Preview Actions</h3>
+        <ul>
+            <li><kbd>🎲 Randomize Order</kbd> — shuffles the question order in the current preview (does not affect the saved test).</li>
+            <li><kbd>💾 Save Test</kbd> — saves the test (with current question order and metadata) to Test History.</li>
+            <li><kbd>📄 Export Test</kbd> — opens the export format picker.</li>
+        </ul>
+    </section>
+
+    <!-- ───────────────────────── EXPORT ───────────────────────── -->
+    <section id="export">
+        <h2>Exporting a Test</h2>
+        <p>Click <kbd>📄 Export Test</kbd> in the preview footer to open the export panel.</p>
+        <ul>
+            <li>Tick <strong>Include Answer Key</strong> if you want the answers included inline with the questions and printed at the end of the document. The answer key and the non-answer key versions of the test should be exported separately.</li>
+            <li>Choose <kbd>📄 Export as PDF</kbd> or <kbd>📝 Export as DOCX</kbd>.</li>
+        </ul>
+
+        <h3 id="pdf-export">PDF Export</h3>
+        <p>The PDF is generated in the browser using jsPDF and downloaded automatically. Formatting notes:</p>
+        <ul>
+            <li>Font is Helvetica (standard PDF font). Special Unicode characters (arrows like <code>→</code>, Greek letters, superscripts, etc.) are automatically converted to readable ASCII equivalents.</li>
+            <li>Questions are kept intact across page breaks — a question will not be split between pages.</li>
+            <li>Short multiple choice options are laid out on one inline line; longer options are bulleted.</li>
+            <li>Matching questions shuffle the right-column items randomly on each export.</li>
+            <li>If an answer key is included, it is included inline with the questions and placed on a new page at the end.</li>
+        </ul>
+
+        <h3 id="docx-export">DOCX Export</h3>
+        <p>The Word document is generated using the docx.js library and downloaded automatically. It is compatible with Microsoft Word, LibreOffice Writer, and Google Docs.</p>
+        <ul>
+            <li>Question blocks use Word's "keep together" paragraph property so they are not split across pages.</li>
+            <li>All header metadata, section instructions, and answer key options behave the same as in the PDF export.</li>
+        </ul>
+    </section>
+
+    <!-- ───────────────────────── HISTORY ───────────────────────── -->
+    <section id="history">
+        <h2>Test History</h2>
+        <p>Saved tests appear in the <strong>Test History</strong> tab as cards showing the title, question count, subject, class, and date saved.</p>
+        <ul>
+            <li><strong>Search</strong> — type in the search box and press <kbd>Enter</kbd> to filter by test title or subject.</li>
+            <li><strong>Clear</strong> — removes the search filter and shows all saved tests.</li>
+            <li>Each card has action buttons to <kbd>Re-open</kbd> (reopens the preview so you can re-export or edit) and <kbd>Delete</kbd> the test from history.</li>
+        </ul>
+
+        <div class="callout info">
+            <div class="icon">ℹ️</div>
+            <div class="callout-body">
+                <p>Saved tests store a <em>snapshot</em> of the questions at the time they were saved. Editing or deleting a question in the bank will not change previously saved tests.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───────────────────────── DATABASE ───────────────────────── -->
+    <section id="database">
+        <h2>Database Management</h2>
+        <p>All database operations are accessed through <kbd>⚙️ Database</kbd> in the header.</p>
+
+        <h3 id="export-db">💾 Export Database</h3>
+        <p>Downloads a complete snapshot of the database as a <code>.json</code> file containing all questions, subjects, classes, exam periods, and test history. This is your <strong>backup file</strong>.</p>
+
+        <div class="callout danger">
+            <div class="icon">🚨</div>
+            <div class="callout-body">
+                <strong>Do this regularly.</strong>
+                <p>Export your database after every session where you add or change data. Storing the file in at least two places (e.g., local drive <em>and</em> cloud storage) is the safest practice.</p>
+            </div>
+        </div>
+
+        <h3 id="import-db">📂 Import Database</h3>
+        <p>Merges a previously exported <code>.json</code> file into the current database.</p>
+
+        <div class="callout warning">
+            <div class="icon">⚠️</div>
+            <div class="callout-body">
+                <strong>Watch for duplicates.</strong>
+                <p>Import adds data on top of whatever is already in the database. If you want a clean restore, <a href="#clear-db">clear the database first</a>, then import the backup.</p>
+            </div>
+        </div>
+
+        <h3 id="clear-db">🗑️ Clear Database</h3>
+        <p>Permanently deletes <em>everything</em> — all questions, collections, and test history.</p>
+
+        <div class="callout danger">
+            <div class="icon">🚨</div>
+            <div class="callout-body">
+                <strong>This cannot be undone.</strong>
+                <p>Always <a href="#export-db">export a backup</a> before clearing. A confirmation dialog is shown before the operation proceeds, but once confirmed, the data is gone.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ───────────────────────── TIPS ───────────────────────── -->
+    <section id="tips">
+        <h2>Tips &amp; Best Practices</h2>
+
+        <h3>Organisation</h3>
+        <ul>
+            <li>Create all of your Subjects, Classes, and Exam Periods <em>before</em> you start entering questions. It is much faster to tag questions at entry time than to go back and re-tag them later.</li>
+            <li>Use Exam Periods as syllabus units (e.g., <em>Chapter 1–3</em>, <em>Q1</em>, <em>Semester A</em>). This unlocks the Exam Period Mix feature for balanced cumulative exams.</li>
+        </ul>
+
+        <h3>Generating Exams</h3>
+        <ul>
+            <li>For a cumulative final, leave the Exam Period selector blank and use the <strong>Exam Period Mix</strong> sliders to weight each unit proportionally.</li>
+            <li>Click <kbd>🎲 Randomize Order</kbd> multiple times to generate several different question-order variants for different test versions.</li>
+            <li>Use <em>Test Version</em> in the header metadata to distinguish Version A, B, C, etc. when printing multiple variants.</li>
+        </ul>
+
+        <h3>Exports</h3>
+        <ul>
+            <li>Export both a student copy (no answer key) and a teacher copy (with answer key) at the same time from the same preview.</li>
+            <li>DOCX files are easier to edit after export if you need last-minute changes. PDF is better for distribution to students.</li>
+            <li>If a PDF looks slightly different from the preview, it is because the browser render and the jsPDF render use different text engines. Use DOCX if more accurate layout is critical.</li>
+        </ul>
+
+        <h3>Data Safety</h3>
+        <ul>
+            <li><strong>Never rely on a single backup.</strong> Keep copies in at least two separate locations.</li>
+            <li>After importing a backup, scroll through the Questions view to verify the data looks correct before continuing work.</li>
+            <li>Keep a dated archive of backups (e.g., one per week) so you can recover from accidental mass deletions or corruption.</li>
+            <li>If you use multiple computers, export on one machine and import on the other to transfer your question bank.</li>
+        </ul>
+    </section>
+
+    <hr style="margin:3rem 0 1rem;border:none;border-top:1px solid var(--border);">
+    <p style="color:var(--text-muted);font-size:0.8rem;">Quiz Keeper — User Guide &nbsp;|&nbsp; Last updated March 2026</p>
+
+</main>
+</body>
+</html>
