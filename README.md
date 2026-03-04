@@ -61,7 +61,7 @@ A browser-based question bank and test generation tool for educators. Build a re
 3. Add questions via **+ New Question**.
 4. Click **Generate Test** to compose and export a test.
 
-> **Important:** All data is stored in your browser's IndexedDB. Use **⚙️ Database → Export Database** regularly to back up your question bank. Clearing browser site data will permanently erase all questions and test history.
+> **Important:** All data is stored in your browser's IndexedDB local data file. Use **⚙️ Database → Export Database** regularly to back up your question bank. Clearing browser site data will permanently erase all questions and test history.
 
 ---
 
