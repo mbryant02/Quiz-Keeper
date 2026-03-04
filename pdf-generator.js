@@ -24,7 +24,7 @@ class PDFGenerator {
         const { jsPDF } = window.jspdf;
         this.doc = new jsPDF();
         this.doc.setFontSize(11);
-        this.doc.setFont(undefined, 'normal');
+        this.doc.setFont('helvetica', 'normal');
         this.currentY = 15;
     }
 
@@ -106,7 +106,7 @@ class PDFGenerator {
     // Add title to document
     addTitle(title) {
         this.doc.setFontSize(18);
-        this.doc.setFont(undefined, 'bold');
+        this.doc.setFont('helvetica', 'bold');
         const safe = this.sanitizeText(title);
         const textWidth = this.doc.getTextWidth(safe);
         const x = (this.pageWidth - textWidth) / 2;
@@ -119,7 +119,7 @@ class PDFGenerator {
         // Reserve space for header + at least one question so the header is never the last line on a page
         this.checkPageBreak(50);
         this.doc.setFontSize(11);
-        this.doc.setFont(undefined, 'bold');
+        this.doc.setFont('helvetica', 'bold');
         this.doc.text(this.sanitizeText(header), this.margin, this.currentY);
         this.currentY += 5;
         if (showHr) {
@@ -132,7 +132,7 @@ class PDFGenerator {
     // Add text with word wrapping
     addText(text, fontSize = 11, style = 'normal') {
         this.doc.setFontSize(fontSize);
-        this.doc.setFont(undefined, style);
+        this.doc.setFont('helvetica', style);
         
         const lines = this.doc.splitTextToSize(this.sanitizeText(text), this.maxWidth);
         
@@ -149,7 +149,7 @@ class PDFGenerator {
     addBullet(text, indent = 0) {
         this.checkPageBreak(8);
         this.doc.setFontSize(11);
-        this.doc.setFont(undefined, 'normal');
+        this.doc.setFont('helvetica', 'normal');
         
         const x = this.margin + indent;
         const bulletX = x;
@@ -186,14 +186,14 @@ class PDFGenerator {
         if (testData.showNameLine || testData.doNotWrite) {
             this.doc.setFontSize(11);
             if (testData.showNameLine) {
-                this.doc.setFont(undefined, 'normal');
+                this.doc.setFont('helvetica', 'normal');
                 this.doc.text('Name: _______________________________', this.margin, this.currentY);
                 this.currentY += 8;
             }
             if (testData.doNotWrite) {
-                this.doc.setFont(undefined, 'bolditalic');
+                this.doc.setFont('helvetica', 'bolditalic');
                 this.doc.text('Do not write on this exam', this.margin, this.currentY);
-                this.doc.setFont(undefined, 'normal');
+                this.doc.setFont('helvetica', 'normal');
                 this.currentY += 8;
             }
         }
@@ -203,7 +203,7 @@ class PDFGenerator {
 
         // Add metadata fields based on show flags
         this.doc.setFontSize(11);
-        this.doc.setFont(undefined, 'normal');
+        this.doc.setFont('helvetica', 'normal');
         if (testData.showDate ?? false) {
             this.doc.text(this.sanitizeText(`Date: ${testData.date || new Date().toLocaleDateString()}`), this.margin, this.currentY);
             this.currentY += 6;
@@ -275,7 +275,7 @@ class PDFGenerator {
             // Add section-specific instructions if they exist
             if (testData.sectionInstructions && testData.sectionInstructions[type]) {
                 this.doc.setFontSize(11);
-                this.doc.setFont(undefined, 'italic');
+                this.doc.setFont('helvetica', 'italic');
                 const instrLines = this.doc.splitTextToSize(this.sanitizeText(testData.sectionInstructions[type]), this.maxWidth);
                 instrLines.forEach(line => {
                     this.checkPageBreak(6);
@@ -283,7 +283,7 @@ class PDFGenerator {
                     this.currentY += 5;
                 });
                 this.currentY += 3;
-                this.doc.setFont(undefined, 'normal');
+                this.doc.setFont('helvetica', 'normal');
             }
 
             questions.forEach(question => {
@@ -293,10 +293,10 @@ class PDFGenerator {
                 
                 // Question number and text
                 this.doc.setFontSize(11);
-                this.doc.setFont(undefined, 'bold');
+                this.doc.setFont('helvetica', 'bold');
                 this.doc.text(`${questionNumber}.`, this.margin, this.currentY);
                 
-                this.doc.setFont(undefined, 'normal');
+                this.doc.setFont('helvetica', 'normal');
                 const questionLines = this.doc.splitTextToSize(this.sanitizeText(question.text), this.maxWidth - 10);
                 questionLines.forEach((line, index) => {
                     if (index === 0) {
@@ -315,7 +315,7 @@ class PDFGenerator {
                         const allShort = question.choices.length <= 4 && question.choices.every(c => c.text.length <= 12);
                         if (allShort) {
                             this.doc.setFontSize(11);
-                            this.doc.setFont(undefined, 'normal');
+                            this.doc.setFont('helvetica', 'normal');
                             const inline = question.choices.map((c, i) => `${String.fromCharCode(65 + i)}. ${c.text}`).join('        ');
                             this.checkPageBreak(8);
                             this.doc.text(this.sanitizeText(inline), this.margin + 10, this.currentY);
@@ -330,7 +330,7 @@ class PDFGenerator {
                         if (includeAnswers) {
                             const correctIndex = question.choices.findIndex(c => c.correct);
                             const correctLetter = String.fromCharCode(65 + correctIndex);
-                            this.doc.setFont(undefined, 'bold');
+                            this.doc.setFont('helvetica', 'bold');
                             this.doc.text(`Answer: ${correctLetter}`, this.margin + 10, this.currentY);
                             this.currentY += 8;
                         }
@@ -342,7 +342,7 @@ class PDFGenerator {
                         this.doc.text('True        False', this.margin + 10, this.currentY);
                         this.currentY += 8;
                         if (includeAnswers) {
-                            this.doc.setFont(undefined, 'bold');
+                            this.doc.setFont('helvetica', 'bold');
                             this.doc.text(`Answer: ${question.answer ? 'True' : 'False'}`, this.margin + 10, this.currentY);
                             this.currentY += 8;
                         }
@@ -351,7 +351,7 @@ class PDFGenerator {
                     case 'short-answer':
                         if (includeAnswers && question.answer) {
                             this.doc.setFontSize(11);
-                            this.doc.setFont(undefined, 'italic');
+                            this.doc.setFont('helvetica', 'italic');
                             this.doc.text('Sample Answer:', this.margin + 10, this.currentY);
                             this.currentY += 6;
                             this.addText(question.answer, 11);
@@ -365,7 +365,7 @@ class PDFGenerator {
                     case 'essay':
                         if (includeAnswers && question.rubric) {
                             this.doc.setFontSize(11);
-                            this.doc.setFont(undefined, 'italic');
+                            this.doc.setFont('helvetica', 'italic');
                             this.doc.text('Grading Rubric:', this.margin + 10, this.currentY);
                             this.currentY += 6;
                             this.addText(question.rubric, 11);
@@ -406,10 +406,10 @@ class PDFGenerator {
                         
                         if (includeAnswers) {
                             this.currentY += 5;
-                            this.doc.setFont(undefined, 'bold');
+                            this.doc.setFont('helvetica', 'bold');
                             this.doc.text('Answers:', this.margin + 10, this.currentY);
                             this.currentY += 6;
-                            this.doc.setFont(undefined, 'normal');
+                            this.doc.setFont('helvetica', 'normal');
                             
                             // Show correct mappings based on original pairs and shuffled positions
                             question.pairs.forEach((pair, index) => {
@@ -446,13 +446,13 @@ class PDFGenerator {
                                         const isQuestion = cell.question !== undefined ? cell.question : cell.bold;
                                         if (isQuestion || includeAnswers) {
                                             const style = cell.bold ? 'bold' : 'normal';
-                                            this.doc.setFont(undefined, style);
+                                            this.doc.setFont('helvetica', style);
                                             this.doc.setFontSize(9);
                                             const txt = this.doc.splitTextToSize(this.sanitizeText(cell.text || ''), colW - 2);
                                             this.doc.text(txt[0] || '', x + 1, this.currentY - 0.5);
                                         }
                                     });
-                                    this.doc.setFont(undefined, 'normal');
+                                    this.doc.setFont('helvetica', 'normal');
                                     this.doc.setFontSize(11);
                                     this.currentY += cellH;
                                 });
@@ -483,7 +483,7 @@ class PDFGenerator {
 
                 questions.forEach(question => {
                     this.doc.setFontSize(11);
-                    this.doc.setFont(undefined, 'bold');
+                    this.doc.setFont('helvetica', 'bold');
                     
                     let answerText = `${questionNumber}. `;
                     
@@ -521,7 +521,7 @@ class PDFGenerator {
         if (testData.showPageNumbers ?? true) {
             const pageCount = this.doc.getNumberOfPages();
             this.doc.setFontSize(9);
-            this.doc.setFont(undefined, 'normal');
+            this.doc.setFont('helvetica', 'normal');
             for (let i = 1; i <= pageCount; i++) {
                 this.doc.setPage(i);
                 const text = `Page ${i} of ${pageCount}`;
@@ -550,13 +550,13 @@ class PDFGenerator {
             
             // Question number
             this.doc.setFontSize(11);
-            this.doc.setFont(undefined, 'bold');
+            this.doc.setFont('helvetica', 'bold');
             this.doc.text(`Question ${index + 1}`, this.margin, this.currentY);
             this.currentY += 6;
 
             // Type badge
             this.doc.setFontSize(11);
-            this.doc.setFont(undefined, 'normal');
+            this.doc.setFont('helvetica', 'normal');
             this.doc.text(this.sanitizeText(`Type: ${question.type}`), this.margin, this.currentY);
             if (question.subject) {
                 this.doc.text(this.sanitizeText(`Subject: ${question.subject}`), this.margin + 60, this.currentY);

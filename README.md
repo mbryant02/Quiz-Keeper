@@ -71,7 +71,7 @@ A browser-based question bank and test generation tool for educators. Build a re
 |---|---|
 | HTML5 / CSS3 / Vanilla JavaScript | UI, styling, and all application logic — no frameworks |
 | [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) | Client-side persistent storage for questions, collections, and test history |
-| [jsPDF](https://github.com/parallax/jsPDF) v2.5.1 | PDF export generation |
+| [jsPDF](https://github.com/parallax/jsPDF) v4.2.0 | PDF export generation |
 | [docx](https://github.com/dolanmiu/docx) v7.8.2 | Word (DOCX) export generation |
 
 ---
