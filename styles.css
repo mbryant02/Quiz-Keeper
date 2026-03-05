@@ -250,6 +250,7 @@ body {
     cursor: pointer;
     transition: all 0.3s;
     white-space: nowrap;
+    text-decoration: none;
 }
 
 .btn:hover {
@@ -274,6 +275,7 @@ body {
 .btn-secondary:hover {
     background: #5a6268;
 }
+
 
 .btn-success {
     background: var(--success-color);
@@ -1755,6 +1757,16 @@ textarea {
 }
 
 [data-theme="dark"] .btn-secondary:hover {
+    background: #464d6a;
+}
+
+[data-theme="dark"] .btn-help {
+    background: #3a3f55;
+    color: #f87171;
+    text-shadow: 0 0 8px rgba(248,113,113,0.5);
+}
+
+[data-theme="dark"] .btn-help:hover {
     background: #464d6a;
 }
 
