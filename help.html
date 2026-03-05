@@ -679,7 +679,7 @@
         <ul>
             <li><strong>Search</strong> — type in the search box and press <kbd>Enter</kbd> to filter by test title or subject.</li>
             <li><strong>Clear</strong> — removes the search filter and shows all saved tests.</li>
-            <li>Each card has action buttons to <kbd>Re-open</kbd> (reopens the preview so you can re-export or edit) and <kbd>Delete</kbd> the test from history.</li>
+            <li>Each Test card has action buttons to <kbd>Load</kbd> (reopens the preview so you can re-export or edit), <kbd>Duplicate</kbd> (creates a copy of the test), and <kbd>Delete</kbd> the test from history. Buttons for fast export to both formats are also included</li>
         </ul>
 
         <div class="callout info">
@@ -741,17 +741,17 @@
 
         <h3>Generating Exams</h3>
         <ul>
-            <li>For a cumulative final, leave the Exam Period selector blank and use the <strong>Exam Period Mix</strong> sliders to weight each unit proportionally.</li>
+            <li>For a cumulative test, leave the Exam Period selector blank and use the <strong>Exam Period Mix</strong> sliders to weight each unit proportionally.</li>
             <li>Click <kbd>🎲 Randomize Order</kbd> multiple times to generate several different question-order variants for different test versions.</li>
             <li>Use <em>Test Version</em> in the header metadata to distinguish Version A, B, C, etc. when printing multiple variants.</li>
             <li>You can load a previous test from Test History, modify it, refresh the questions to reflect the current state of the question bank, and export it for printing, and no changes will be made to that version unless you hit Save. This allows you to keep an archive of how that test was but still make changes for a one off use.</li>
-            
+            <li>If you want to create a copy of a previous test for editing without possibly affecting the archive copy, Duplicate the previous test and work on the new copy. You'll be able to give it a new name and it's creation date will reflect when it was duplicated to avoid any confusion.</li>
         </ul>
 
         <h3>Exports</h3>
         <ul>
             <li>Export both a student copy (no answer key) and a teacher copy (with answer key) at the same time from the same preview.</li>
-            <li>DOCX files are easier to edit after export if you need last-minute changes. PDF is better for distribution to students.</li>
+            <li>DOCX files are easier to edit after export if you need last-minute changes. PDF is better for distribution to people that may not have a way or know how to open a Word/docx file.</li>
             <li>If a PDF looks slightly different from the preview, it is because the browser render and the jsPDF render use different text engines. Use DOCX if more accurate layout is critical.</li>
         </ul>
 
@@ -765,7 +765,8 @@
     </section>
 
     <hr style="margin:3rem 0 1rem;border:none;border-top:1px solid var(--border);">
-    <p style="color:var(--text-muted);font-size:0.8rem;">Quiz Keeper — User Guide &nbsp;|&nbsp; Last updated March 5, 2026</p>
+    <p style="color:var(--text-muted);font-size:0.8rem;">User Guide &nbsp;|&nbsp; Last updated March 5, 2026</p>
+    <p style="color:var(--text-muted);font-size:0.8rem;">Quiz Keeper is free software released under the <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General Public License v3.0</a>. © 2026 Mark Bryant</p>
 
 </main>
 <script src="https://storage.ko-fi.com/cdn/widget/Widget_2.js"></script>

@@ -2434,6 +2434,7 @@ class QuizKeeperApp {
                     </div>
                     <div class="test-card-actions">
                         <button class="btn btn-primary btn-sm load-test" data-test-id="${test.id}">📂 Load</button>
+                        <button class="btn btn-secondary btn-sm duplicate-test" data-test-id="${test.id}">📋 Duplicate</button>
                         <button class="btn btn-success btn-sm export-test-pdf" data-test-id="${test.id}">📄 PDF</button>
                         <button class="btn btn-success btn-sm export-test-docx" data-test-id="${test.id}">📝 DOCX</button>
                         <button class="btn btn-danger btn-sm delete-test" data-test-id="${test.id}">🗑️ Delete</button>
@@ -2475,6 +2476,13 @@ class QuizKeeperApp {
             });
         });
         
+        container.querySelectorAll('.duplicate-test').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const testId = parseInt(btn.dataset.testId);
+                await this.duplicateTest(testId);
+            });
+        });
+
         container.querySelectorAll('.delete-test').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const testId = parseInt(btn.dataset.testId);
@@ -2532,6 +2540,29 @@ class QuizKeeperApp {
         } catch (error) {
             console.error('Error loading test:', error);
             this.showToast('Error loading test', 'error');
+        }
+    }
+
+    async duplicateTest(testId) {
+        try {
+            const original = await db.getTest(testId);
+            if (!original) {
+                this.showToast('Test not found', 'error');
+                return;
+            }
+            const suggestedName = `${original.title || 'Untitled Test'} (Copy)`;
+            const newTitle = prompt('Enter a name for the duplicate test:', suggestedName);
+            if (newTitle === null) return; // cancelled
+            const duplicate = JSON.parse(JSON.stringify(original));
+            delete duplicate.id;
+            duplicate.title = newTitle.trim() || suggestedName;
+            duplicate.createdAt = new Date().toISOString();
+            await db.addTest(duplicate);
+            this.showToast('Test duplicated successfully', 'success');
+            await this.loadTestHistory();
+        } catch (error) {
+            console.error('Error duplicating test:', error);
+            this.showToast('Error duplicating test', 'error');
         }
     }
 

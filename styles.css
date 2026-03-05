@@ -1695,11 +1695,17 @@ textarea {
     color: var(--primary-color);
     font-size: 1.3rem;
     margin: 0;
+    flex: 1;
+    min-width: 0;
+    word-break: break-word;
 }
 
 .test-card-header small {
     color: var(--secondary-color);
     font-size: 0.875rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 0.75rem;
 }
 
 .test-card-body {

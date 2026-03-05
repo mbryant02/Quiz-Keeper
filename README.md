@@ -14,6 +14,7 @@ Thanks for checking out Quiz Keeper, I made this tool at the request of my amazi
 - Table questions feature an interactive grid editor with per-cell **Q** (question cell) and **B** (bold) toggles.
 - Matching questions support 2–10 term/definition pairs.
 - Short Answer and Essay questions support sample answers and grading rubrics to print on the answer key.
+- Resizable Image support
 
 ### Collections (Subjects, Classes & Exam Periods)
 - Organize questions using a three-level hierarchy: **Subject → Class → Exam Period**.
@@ -43,7 +44,8 @@ Thanks for checking out Quiz Keeper, I made this tool at the request of my amazi
 
 ### Test History
 - Save generated tests for later reference.
-- Reopen, re-export, edit, or re-randomize any saved test from the Test History tab.
+- Reopen, duplicate, re-export, edit, or re-randomize any saved test from the Test History tab.
+- Save over the archive copy or just use it to print a one off change. Duplicate any test in history with a new name to use it as a working template.
 
 ### Database Management
 - **Export** the full question bank and test history to a `.json` backup data file (timestamped).
@@ -52,13 +54,13 @@ Thanks for checking out Quiz Keeper, I made this tool at the request of my amazi
 
 ### UI & Accessibility
 - **Dark mode** toggle, persisted across sessions via `localStorage`.
-- Runs entirely in the browser — no build step, no server, no sign-in.
+- Runs entirely in the browser — no install needed, no server needed to run from your device, no accounts. If all images are saved on your device no internet connection necessary at all.
 
 ---
 
 ## Getting Started
 
-1. Open `index.html` in a modern browser (Chrome, Edge, or Firefox recommended).
+1. Open `index.html` in a modern browser (Firefox, Chrome, Opera, and Edge were tested to a limited degree).
 2. Create at least one **Subject** in the Collections tab before adding questions.
 3. Add questions via **+ New Question**.
 4. Click **Generate Test** to compose and export a test.
