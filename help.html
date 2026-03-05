@@ -239,6 +239,7 @@
         <a href="#questions">Questions</a>
         <a class="sub" href="#question-types">Question Types</a>
         <a class="sub" href="#adding-questions">Adding a Question</a>
+        <a class="sub" href="#question-images">Adding an Image</a>
         <a class="sub" href="#editing-questions">Editing &amp; Deleting</a>
         <a class="sub" href="#filtering-questions">Searching &amp; Filtering</a>
         <a href="#generate">Generating a Test</a>
@@ -248,6 +249,7 @@
         <a class="sub" href="#edit-mode">Rich Edit Mode</a>
         <a class="sub" href="#metadata">Header / Metadata</a>
         <a class="sub" href="#edit-questions">Adding / Removing Questions</a>
+        <a class="sub" href="#refresh-questions">Refreshing Questions</a>
         <a href="#export">Exporting a Test</a>
         <a class="sub" href="#pdf-export">PDF Export</a>
         <a class="sub" href="#docx-export">DOCX Export</a>
@@ -266,14 +268,17 @@
     <div id="top" class="hero">
         <h1>📚 Quiz Keeper</h1>
         <p>Complete user guide — building questions, generating tests, and working with exports.</p>
+        
     </div>
+    <span id="kofi-help"></span>
 
     <!-- ───────────────────────── OVERVIEW ───────────────────────── -->
     <section id="overview">
         <h2>Overview</h2>
-        <p>Quiz Keeper is a browser-based tool that lets you build and maintain a reusable question bank, then quickly compose, preview, and export professional tests as PDF or Word (DOCX) documents. All data is stored locally in your browser using IndexedDB — no internet connection should be required.
-
+        <p>Thanks for trying Quiz Keeper, I made this tool at the request of my amazingly hardworking wife who works as a university professor and found the tools provided by the university system and the book publisher's online platform to be frustrating. I put a lot of thought into the implementation of this tool and also of course had my wife's suggestions and feedback, so hopefully you will find it usefull too. 
+            This tool is provided free and open source under the GNU GPLv3 License, and while I have done my best to make sure it works correctly, a robust amount of testing has not yet been performed. Use it at your own risk and always have a backup of your database saved. In that same vein, if you encounter bugs or have suggestions I cannot promise a response or action but feel free to contact me.
         </p>
+        <p>Quiz Keeper is a browser-based tool that lets you build and maintain a reusable question bank, then quickly compose, preview, and export professional tests as PDF or Word (DOCX) documents. All data is stored locally in your browser using IndexedDB — no internet connection should be required.</p>
 
         <div class="callout info">
             <div class="icon">ℹ️</div>
@@ -461,6 +466,47 @@
             <li>Click the <kbd>B</kbd> button on any cell to apply bold text formatting.</li>
         </ul>
 
+        <h3 id="question-images">Adding an Image to a Question</h3>
+        <p>Any question can optionally include one image, which will appear between the question text and the answer choices in the preview, on-screen cards, PDF, and DOCX exports.</p>
+
+        <h4>How to attach an image</h4>
+        <p>The <strong>Image (optional)</strong> field appears in the question form between the Question Text and the Subject/Class fields. You have three ways to add an image:</p>
+        <ul>
+            <li><strong>Paste a URL</strong> — Type or paste a web address (e.g., <code>https://example.com/diagram.png</code>) into the text field and click <kbd>Preview</kbd> (or press <kbd>Enter</kbd>). The image loads in a preview area below the field.</li>
+            <li><strong>Browse for a local file</strong> — Click <kbd>Browse…</kbd> to open a file picker and choose any image file from your computer. The image is read directly into the app — no upload needed.</li>
+            <li><strong>Drag and drop</strong> — Drag an image file from Explorer/Finder (or drag an image from a web browser) and drop it anywhere inside the dashed drop zone. The image loads immediately.</li>
+        </ul>
+
+        <div class="callout warning">
+            <div class="icon">⚠️</div>
+            <div class="callout-body">
+                <strong>Local file paths do not work when Quiz Keeper is hosted on a web server</strong>
+                <p>If you are accessing Quiz Keeper through a web address (e.g., <code>https://yourschool.example.com/quizkeeper</code>), typing a path to a file on your own computer into the URL field — such as <code>C:\Pictures\diagram.png</code> or <code>file:///Users/you/diagram.png</code> — will not work. Browsers block this for security: a web-hosted page is not permitted to directly read files from your local drive via a typed path.</p>
+                <p>This limitation only affects the <em>URL text field</em>. The <b>Browse</b> button and <b>drag-and-drop</b> always work, regardless of whether the app is hosted on a web server or opened as a local file, because they use a secure browser mechanism that explicitly asks you to grant access to a specific file. Always use Browse or drag-and-drop when you want to use images from your own device.</p>
+            </div>
+        </div>
+
+        <h4>Adjusting the display width</h4>
+        <p>Once an image is previewed, an <strong>Image Display Width</strong> slider (10%–100%) appears. Drag it to set how wide the image should appear relative to the question column. This setting is saved with the question.</p>
+
+        <div class="callout warning">
+            <div class="icon">⚠️</div>
+            <div class="callout-body">
+                <strong>Internet images and exports — what you need to know</strong>
+                <p>When you use a web URL as your image source, the image shows fine in the browser preview. However, when you <em>export</em> to PDF or DOCX, the app needs to copy the actual image data into the file. This is only possible if the website that hosts the image gives explicit permission for it.</p>
+                <p>Think of it like this: your browser is allowed to <em>display</em> a photo from another site, but it may not be allowed to <em>copy</em> that photo into a document — the website owner controls that permission via something called a CORS policy. If the site does not grant this permission, the image will be silently skipped in the export (it will still show in the on-screen preview).</p>
+                <p><strong>The safest approach for exports is to use the Browse or drag-and-drop method</strong> because local files are always fully embedded with no restrictions. Images saved this way are stored directly inside Quiz Keeper as data and will always export correctly.</p>
+            </div>
+        </div>
+
+        <div class="callout info">
+            <div class="icon">ℹ️</div>
+            <div class="callout-body">
+                <strong>Local file images and database backups</strong>
+                <p>When you browse or drag-and-drop a local file, the image data is saved <em>inside</em> your Quiz Keeper database. This means it will also be included in your <a href="#export-db">database backup</a> — but be aware that backup file sizes will be larger for question banks with many images.</p>
+            </div>
+        </div>
+
         <h3 id="editing-questions">Editing &amp; Deleting</h3>
         <p>Each question card in the Questions view has <kbd>Edit</kbd> and <kbd>Delete</kbd> buttons. Editing opens the same form pre-filled with the existing data. Deletion is immediate — there is no undo, so <a href="#backup">keep regular backups</a>.</p>
 
@@ -563,6 +609,20 @@
             <li>Click <kbd>Save Changes</kbd> to apply and return to the preview.</li>
         </ul>
 
+        <h3 id="refresh-questions">Refreshing Questions from the Bank</h3>
+        <p>Saved tests store a snapshot of each question at the time the test was last saved. If you later edit a question in the bank — for example, adding an image to it — those changes will <em>not</em> automatically appear when you reopen the saved test.</p>
+        <p>Click <kbd>🔄 Refresh Questions</kbd> in the preview footer to re-fetch every question in the current test from the question bank and update them to their latest version. The refreshed state is applied immediately to the preview.</p>
+
+        <div class="callout warning">
+            <div class="icon">⚠️</div>
+            <div class="callout-body">
+                <strong>Refresh does not save automatically</strong>
+                <p>Refreshing only updates the preview in memory. The saved test in Test History is not changed until you click <kbd>💾 Save Test</kbd>. This means you can refresh and export an up-to-date version without overwriting the original snapshot — useful if you want to keep both.</p>
+            </div>
+        </div>
+
+        <p>A status message will appear after refreshing to tell you how many questions were updated. If a question has been deleted from the bank since the test was saved, it is kept as-is in the test.</p>
+
         <h3>Other Preview Actions</h3>
         <ul>
             <li><kbd>🎲 Randomize Order</kbd> — shuffles the question order in the current preview (does not affect the saved test).</li>
@@ -588,14 +648,28 @@
             <li>Short multiple choice options are laid out on one inline line; longer options are bulleted.</li>
             <li>Matching questions shuffle the right-column items randomly on each export.</li>
             <li>If an answer key is included, it is included inline with the questions and placed on a new page at the end.</li>
+            <li><strong>Images</strong> — question images are embedded directly into the PDF file at an enlarged size for print clarity. See the <a href="#question-images">image note about internet URLs</a> if images are missing from your exported PDF.</li>
         </ul>
+
+        <p>The exported filename follows the format <code>ClassName_TestTitle_YYYY-MM-DD.pdf</code> (or Subject name if no Class is set).</p>
 
         <h3 id="docx-export">DOCX Export</h3>
         <p>The Word document is generated using the docx.js library and downloaded automatically. It is compatible with Microsoft Word, LibreOffice Writer, and Google Docs.</p>
         <ul>
             <li>Question blocks use Word's "keep together" paragraph property so they are not split across pages.</li>
             <li>All header metadata, section instructions, and answer key options behave the same as in the PDF export.</li>
+            <li><strong>Images</strong> — question images are embedded directly inside the <code>.docx</code> file (in the <code>word/media/</code> folder of the document), so the file is fully self-contained. See the <a href="#question-images">image note about internet URLs</a> if images are missing from your exported DOCX.</li>
         </ul>
+
+        <p>The exported filename follows the format <code>ClassName_TestTitle_YYYY-MM-DD.docx</code> (or Subject name if no Class is set).</p>
+
+        <div class="callout info">
+            <div class="icon">ℹ️</div>
+            <div class="callout-body">
+                <strong>After export — save prompt</strong>
+                <p>After exporting from the test preview window, a dialog will ask whether you want to save the current state of the test to history. Click <strong>OK</strong> to save (or update) the test, or <strong>Cancel</strong> to skip — the exported file is not affected either way.</p>
+            </div>
+        </div>
     </section>
 
     <!-- ───────────────────────── HISTORY ───────────────────────── -->
@@ -611,7 +685,7 @@
         <div class="callout info">
             <div class="icon">ℹ️</div>
             <div class="callout-body">
-                <p>Saved tests store a <em>snapshot</em> of the questions at the time they were saved. Editing or deleting a question in the bank will not change previously saved tests.</p>
+                <p>Saved tests store a <em>snapshot</em> of the questions at the time they were saved. Editing or deleting a question in the bank will not change previously saved tests. Use the <a href="#refresh-questions"><kbd>🔄 Refresh Questions</kbd></a> button in the preview footer to pull in the latest question data without permanently overwriting the saved snapshot.</p>
             </div>
         </div>
     </section>
@@ -670,6 +744,8 @@
             <li>For a cumulative final, leave the Exam Period selector blank and use the <strong>Exam Period Mix</strong> sliders to weight each unit proportionally.</li>
             <li>Click <kbd>🎲 Randomize Order</kbd> multiple times to generate several different question-order variants for different test versions.</li>
             <li>Use <em>Test Version</em> in the header metadata to distinguish Version A, B, C, etc. when printing multiple variants.</li>
+            <li>You can load a previous test from Test History, modify it, refresh the questions to reflect the current state of the question bank, and export it for printing, and no changes will be made to that version unless you hit Save. This allows you to keep an archive of how that test was but still make changes for a one off use.</li>
+            
         </ul>
 
         <h3>Exports</h3>
@@ -689,8 +765,24 @@
     </section>
 
     <hr style="margin:3rem 0 1rem;border:none;border-top:1px solid var(--border);">
-    <p style="color:var(--text-muted);font-size:0.8rem;">Quiz Keeper — User Guide &nbsp;|&nbsp; Last updated March 2026</p>
+    <p style="color:var(--text-muted);font-size:0.8rem;">Quiz Keeper — User Guide &nbsp;|&nbsp; Last updated March 5, 2026</p>
 
 </main>
+<script src="https://storage.ko-fi.com/cdn/widget/Widget_2.js"></script>
+<script>
+    kofiwidget2.init('Tip the developer! Thanks!', '#72a4f2', 'W7W31VACQP');
+    (function() {
+        var container = document.getElementById('kofi-help');
+        if (typeof kofiwidget2.getHTML === 'function') {
+            container.innerHTML = kofiwidget2.getHTML();
+        } else {
+            kofiwidget2.draw();
+            setTimeout(function() {
+                var btn = document.querySelector('.kofi-button');
+                if (btn && container) container.appendChild(btn);
+            }, 0);
+        }
+    })();
+</script>
 </body>
 </html>

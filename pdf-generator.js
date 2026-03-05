@@ -29,7 +29,7 @@ class PDFGenerator {
     }
 
     // Estimate the rendered height (mm) of a question so we can avoid mid-question page breaks
-    estimateQuestionHeight(question, type, testData, includeAnswers) {
+    estimateQuestionHeight(question, type, testData, includeAnswers, imageCache = {}) {
         const lineH   = 6;   // mm per text line
         const itemH   = 8;   // mm per choice / bullet row
         const answerLineH = 8; // mm per drawn answer line
@@ -37,6 +37,18 @@ class PDFGenerator {
         // Question text lines
         const textLines = this.doc.splitTextToSize(question.text, this.maxWidth - 10);
         let h = textLines.length * lineH + 8; // +8 for post-text spacing
+
+        // Image height
+        if (question.imageUrl && imageCache[question.imageUrl]) {
+            const imgData = imageCache[question.imageUrl];
+            const mmPerPx = 25.4 / 96;
+            const scale = (question.imageWidth || 100) / 100 * 1.75; // +75% vs preview
+            const maxW = this.maxWidth - 10;
+            let iW = imgData.naturalWidth * mmPerPx * scale;
+            let iH = imgData.naturalHeight * mmPerPx * scale;
+            if (iW > maxW) { iH *= maxW / iW; }
+            h += iH + 8;
+        }
 
         switch (type) {
             case 'multiple-choice': {
@@ -178,9 +190,45 @@ class PDFGenerator {
         this.currentY += 3;
     }
 
+    // Pre-load images for all questions that have an imageUrl.
+    // Returns a map of url -> { dataUrl, naturalWidth, naturalHeight } (or null on failure).
+    async preloadTestImages(questions) {
+        const imageCache = {};
+        const urls = [...new Set(questions.filter(q => q.imageUrl).map(q => q.imageUrl))];
+        await Promise.all(urls.map(async url => {
+            imageCache[url] = await this.loadImageForPdf(url);
+        }));
+        return imageCache;
+    }
+
+    loadImageForPdf(url) {
+        return new Promise(resolve => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                    resolve({
+                        dataUrl: canvas.toDataURL('image/jpeg', 0.88),
+                        naturalWidth: img.naturalWidth,
+                        naturalHeight: img.naturalHeight
+                    });
+                } catch (e) { resolve(null); }
+            };
+            img.onerror = () => resolve(null);
+            img.src = url;
+        });
+    }
+
     // Generate test PDF
-    generateTestPDF(testData, includeAnswers = false) {
+    async generateTestPDF(testData, includeAnswers = false) {
         this.init();
+
+        // Pre-load images
+        const imageCache = await this.preloadTestImages(testData.questions);
 
         // Name line / do not write (top left, before title)
         if (testData.showNameLine || testData.doNotWrite) {
@@ -288,7 +336,7 @@ class PDFGenerator {
 
             questions.forEach(question => {
                 // Calculate full question height and ensure it starts on a page where it fits entirely
-                const qHeight = this.estimateQuestionHeight(question, type, testData, includeAnswers);
+                const qHeight = this.estimateQuestionHeight(question, type, testData, includeAnswers, imageCache);
                 this.checkPageBreak(qHeight);
                 
                 // Question number and text
@@ -309,6 +357,22 @@ class PDFGenerator {
                 });
                 this.currentY += 8;
 
+                // Render image if present
+                if (question.imageUrl && imageCache[question.imageUrl]) {
+                    const imgData = imageCache[question.imageUrl];
+                    const mmPerPx = 25.4 / 96;
+                    const scale = (question.imageWidth || 100) / 100 * 1.75; // +75% vs preview
+                    const maxW = this.maxWidth - 10;
+                    let iW = imgData.naturalWidth * mmPerPx * scale;
+                    let iH = imgData.naturalHeight * mmPerPx * scale;
+                    if (iW > maxW) { iH *= maxW / iW; iW = maxW; }
+                    this.checkPageBreak(iH + 5);
+                    try {
+                        this.doc.addImage(imgData.dataUrl, 'JPEG', this.margin + 5, this.currentY, iW, iH);
+                        this.currentY += iH + 3;
+                    } catch (e) { /* skip if image can't be embedded */ }
+                }
+
                 // Render based on question type
                 switch (type) {
                     case 'multiple-choice': {
@@ -321,11 +385,19 @@ class PDFGenerator {
                             this.doc.text(this.sanitizeText(inline), this.margin + 10, this.currentY);
                             this.currentY += 8;
                         } else {
+                            this.doc.setFontSize(11);
+                            this.doc.setFont('helvetica', 'normal');
                             question.choices.forEach((choice, index) => {
                                 const letter = String.fromCharCode(65 + index);
-                                const choiceText = `${letter}. ${choice.text}`;
-                                this.addBullet(choiceText, 5);
+                                const choiceText = `${letter}. ${this.sanitizeText(choice.text)}`;
+                                const lines = this.doc.splitTextToSize(choiceText, this.maxWidth - 10);
+                                lines.forEach(line => {
+                                    this.checkPageBreak(7);
+                                    this.doc.text(line, this.margin + 10, this.currentY);
+                                    this.currentY += 7;
+                                });
                             });
+                            this.currentY += 1;
                         }
                         if (includeAnswers) {
                             const correctIndex = question.choices.findIndex(c => c.correct);
@@ -531,7 +603,10 @@ class PDFGenerator {
         }
 
         // Save the PDF
-        const filename = `${testData.title.replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.pdf`;
+        const _prefix = (testData.class || testData.subject || '').replace(/[^a-z0-9]/gi, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+        const _title  = (testData.title || 'Test').replace(/[^a-z0-9]/gi, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+        const _date   = new Date().toISOString().slice(0, 10);
+        const filename = [_prefix, _title, _date].filter(Boolean).join('_') + '.pdf';
         this.doc.save(filename);
     }
 

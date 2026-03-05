@@ -140,6 +140,27 @@
                         <textarea id="questionText" required rows="3"></textarea>
                     </div>
 
+                    <!-- Image (optional) -->
+                    <div class="form-group">
+                        <label>Image (optional)</label>
+                        <input type="file" id="questionImageFile" accept="image/*" style="display:none">
+                        <div id="imageDropZone" class="image-drop-zone">
+                            <div class="image-url-row">
+                                <input type="text" id="questionImageUrl" placeholder="Paste URL, or drag &amp; drop / browse a local image">
+                                <button type="button" id="browseImageBtn" class="btn btn-secondary">Browse…</button>
+                                <button type="button" id="previewImageBtn" class="btn btn-secondary">Preview</button>
+                            </div>
+                            <div class="image-drop-hint">or drag &amp; drop an image file anywhere in this box</div>
+                        </div>
+                        <div id="imagePreviewContainer" class="image-preview-container" style="display:none;">
+                            <img id="imagePreviewImg" src="" alt="Question image preview">
+                        </div>
+                    </div>
+                    <div id="imageWidthGroup" class="form-group" style="display:none;">
+                        <label>Image Display Width: <span id="imageWidthDisplay">100</span>%</label>
+                        <input type="range" id="questionImageWidth" min="10" max="100" value="100" step="5">
+                    </div>
+
                     <div class="form-row form-row-3col">
                         <div class="form-group">
                             <label>Subject</label>
@@ -338,14 +359,15 @@
                 <div id="testPreviewContent" class="test-preview">
                     <!-- Test content will be rendered here -->
                 </div>
-                <div class="modal-footer">
+            </div>
+            <div class="modal-footer">
                     <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
                     <button type="button" id="randomizeQuestionsBtn" class="btn btn-secondary">🎲 Randomize Order</button>
+                    <button type="button" id="refreshQuestionsBtn" class="btn btn-secondary" title="Re-fetch each question from the question bank to pick up edits (e.g. added images). Does not save until you click Save.">🔄 Refresh Questions</button>
                     <button type="button" id="saveTestBtn" class="btn btn-primary">💾 Save Test</button>
                     <button type="button" id="editTestBtn" class="btn btn-primary">📝 Edit Questions</button>
                     <button type="button" id="exportTestBtn" class="btn btn-success">📄 Export Test</button>
                 </div>
-            </div>
         </div>
     </div>
 

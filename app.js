@@ -187,6 +187,10 @@ class QuizKeeperApp {
             this.openExportModal();
         });
 
+        document.getElementById('refreshQuestionsBtn').addEventListener('click', () => {
+            this.refreshTestQuestions();
+        });
+
         document.getElementById('randomizeQuestionsBtn').addEventListener('click', () => {
             this.randomizeTestQuestions();
         });
@@ -372,6 +376,57 @@ class QuizKeeperApp {
                 }
             });
         });
+
+        // Image URL preview
+        document.getElementById('previewImageBtn').addEventListener('click', () => {
+            this.previewQuestionImage();
+        });
+        document.getElementById('questionImageUrl').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') this.previewQuestionImage();
+        });
+        document.getElementById('questionImageWidth').addEventListener('input', (e) => {
+            document.getElementById('imageWidthDisplay').textContent = e.target.value;
+            const img = document.getElementById('imagePreviewImg');
+            if (img) img.style.width = e.target.value + '%';
+        });
+
+        // Image browse button & file input
+        document.getElementById('browseImageBtn').addEventListener('click', () => {
+            document.getElementById('questionImageFile').click();
+        });
+        document.getElementById('questionImageFile').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) this.loadImageFile(file);
+            e.target.value = '';
+        });
+
+        // Drag-and-drop onto the image drop zone
+        const imageDropZone = document.getElementById('imageDropZone');
+        imageDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+            imageDropZone.classList.add('drag-over');
+        });
+        imageDropZone.addEventListener('dragleave', (e) => {
+            if (!imageDropZone.contains(e.relatedTarget)) {
+                imageDropZone.classList.remove('drag-over');
+            }
+        });
+        imageDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            imageDropZone.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                this.loadImageFile(file);
+            } else {
+                // Dragged from browser (URL)
+                const url = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
+                if (url && url.trim()) {
+                    document.getElementById('questionImageUrl').value = url.trim();
+                    this.previewQuestionImage();
+                }
+            }
+        });
     }
 
     // View Management
@@ -464,6 +519,7 @@ class QuizKeeperApp {
                     </div>
                 </div>
                 <div class="question-text">${this.escapeHtml(question.text)}</div>
+                ${question.imageUrl ? `<div class="question-image-wrapper"><img src="${this.escapeHtml(question.imageUrl)}" class="question-image" style="width:${question.imageWidth || 100}%" alt="Question image" onerror="this.closest('.question-image-wrapper').style.display='none'"></div>` : ''}
                 <div class="question-meta">
                     ${question.subject ? `<span>📚 ${this.escapeHtml(question.subject)}</span>` : ''}
                     ${question.class ? `<span>📖 ${this.escapeHtml(question.class)}</span>` : ''}
@@ -600,11 +656,66 @@ class QuizKeeperApp {
                 this.updateQuestionTypeOptions('multiple-choice');
                 await this.updateQuestionClassOptions('');
             }
+
+            // Image fields
+            const imgUrl = question ? (question.imageUrl || '') : '';
+            const imgWidth = question ? (question.imageWidth || 100) : 100;
+            document.getElementById('questionImageUrl').value = imgUrl;
+            document.getElementById('questionImageWidth').value = imgWidth;
+            document.getElementById('imageWidthDisplay').textContent = imgWidth;
+            document.getElementById('imagePreviewContainer').style.display = 'none';
+            document.getElementById('imageWidthGroup').style.display = 'none';
+            if (imgUrl) this.previewQuestionImage();
             
             this.openModal(modal.id);
         } catch (error) {
             console.error('Failed to open question modal:', error);
             this.showToast('Failed to open question form', 'error');
+        }
+    }
+
+    loadImageFile(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const dataUrl = e.target.result;
+            document.getElementById('questionImageUrl').value = dataUrl;
+            const previewImg = document.getElementById('imagePreviewImg');
+            const widthVal = document.getElementById('questionImageWidth').value;
+            previewImg.style.width = widthVal + '%';
+            previewImg.onload = () => {
+                document.getElementById('imagePreviewContainer').style.display = 'block';
+                document.getElementById('imageWidthGroup').style.display = 'block';
+            };
+            previewImg.onerror = () => {
+                document.getElementById('imagePreviewContainer').style.display = 'none';
+                document.getElementById('imageWidthGroup').style.display = 'none';
+            };
+            previewImg.src = dataUrl;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    previewQuestionImage() {
+        const url = document.getElementById('questionImageUrl').value.trim();
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        const previewImg = document.getElementById('imagePreviewImg');
+        const widthGroup = document.getElementById('imageWidthGroup');
+        const widthVal = document.getElementById('questionImageWidth').value;
+        if (url) {
+            previewImg.style.width = widthVal + '%';
+            previewImg.onload = () => {
+                previewContainer.style.display = 'block';
+                widthGroup.style.display = 'block';
+            };
+            previewImg.onerror = () => {
+                previewContainer.style.display = 'none';
+                widthGroup.style.display = 'none';
+            };
+            previewImg.src = url;
+        } else {
+            previewContainer.style.display = 'none';
+            widthGroup.style.display = 'none';
+            previewImg.src = '';
         }
     }
 
@@ -844,6 +955,11 @@ class QuizKeeperApp {
                     break;
                 }
             }
+
+            // Image
+            const imageUrl = document.getElementById('questionImageUrl').value.trim() || null;
+            questionData.imageUrl = imageUrl;
+            questionData.imageWidth = imageUrl ? parseInt(document.getElementById('questionImageWidth').value) : null;
 
             if (this.editingQuestion) {
                 questionData.id = this.editingQuestion.id;
@@ -1776,6 +1892,12 @@ class QuizKeeperApp {
             questions.forEach(q => {
                 html += `<div class="test-question">`;
                 html += `<div class="test-question-text"><span class="test-question-number">${questionNumber}.</span> ${this.escapeHtml(q.text)}</div>`;
+                if (q.imageUrl) {
+                    html += `<div class="test-question-image-wrapper" data-qid="${q.id}" style="width:${q.imageWidth || 100}%">`
+                        + `<img src="${this.escapeHtml(q.imageUrl)}" class="test-question-image" alt="" onerror="this.closest('.test-question-image-wrapper').style.display='none'">`
+                        + `<div class="img-resize-handle" title="Drag to resize"></div>`
+                        + `</div>`;
+                }
 
                 switch (type) {
                     case 'multiple-choice': {
@@ -1863,6 +1985,44 @@ class QuizKeeperApp {
         }
 
         container.innerHTML = html;
+        this.setupTestPreviewImageResize();
+    }
+
+    setupTestPreviewImageResize() {
+        const container = document.getElementById('testPreviewContent');
+        if (!container) return;
+        container.querySelectorAll('.img-resize-handle').forEach(handle => {
+            handle.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                const wrapper = handle.closest('.test-question-image-wrapper');
+                const qid = parseInt(wrapper.dataset.qid);
+                const parentWidth = wrapper.parentElement.getBoundingClientRect().width || 600;
+                const startX = e.clientX;
+                const startPct = parseFloat(wrapper.style.width) || 100;
+                const startPx = parentWidth * startPct / 100;
+
+                const onMouseMove = (ev) => {
+                    const delta = ev.clientX - startX;
+                    const newPct = Math.round(Math.max(10, Math.min(100, (startPx + delta) / parentWidth * 100)));
+                    wrapper.style.width = newPct + '%';
+                    wrapper.dataset.currentWidth = newPct;
+                };
+
+                const onMouseUp = async () => {
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                    const finalWidth = parseInt(wrapper.dataset.currentWidth) || 100;
+                    const question = this.currentTest && this.currentTest.questions.find(q => q.id === qid);
+                    if (question) {
+                        question.imageWidth = finalWidth;
+                        try { await db.updateTest(this.currentTest); } catch (_) {}
+                    }
+                };
+
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+        });
     }
 
     async openEditTestModal() {
@@ -2298,7 +2458,7 @@ class QuizKeeperApp {
                 const testId = parseInt(btn.dataset.testId);
                 const test = await db.getTest(testId);
                 if (test) {
-                    pdfGenerator.generateTestPDF(test, false);
+                    await pdfGenerator.generateTestPDF(test, false);
                     this.showToast('PDF exported', 'success');
                 }
             });
@@ -2321,6 +2481,41 @@ class QuizKeeperApp {
                 await this.deleteTestFromHistory(testId);
             });
         });
+    }
+
+    async refreshTestQuestions() {
+        if (!this.currentTest || !this.currentTest.questions) return;
+        let updated = 0;
+        let missing = 0;
+        const refreshed = [];
+        for (const q of this.currentTest.questions) {
+            try {
+                const latest = await db.getQuestion(q.id);
+                if (latest) {
+                    // Preserve imageWidth from test if question bank version has none
+                    if (q.imageWidth && !latest.imageWidth) latest.imageWidth = q.imageWidth;
+                    refreshed.push(latest);
+                    // Count as updated if any key field differs
+                    if (
+                        latest.text !== q.text ||
+                        latest.imageUrl !== q.imageUrl ||
+                        latest.imageWidth !== q.imageWidth ||
+                        JSON.stringify(latest.choices) !== JSON.stringify(q.choices)
+                    ) updated++;
+                } else {
+                    refreshed.push(q); // question deleted from bank — keep snapshot
+                    missing++;
+                }
+            } catch (e) {
+                refreshed.push(q);
+            }
+        }
+        this.currentTest.questions = refreshed;
+        this.renderTestPreview(this.currentTest);
+        let msg = `Questions refreshed — ${updated} updated from question bank.`;
+        if (missing) msg += ` ${missing} no longer in bank (kept as-is).`;
+        if (updated === 0 && missing === 0) msg = 'Questions refreshed — all already up to date.';
+        this.showToast(msg, updated > 0 ? 'success' : 'info');
     }
 
     async loadTestFromHistory(testId) {
@@ -2579,22 +2774,29 @@ class QuizKeeperApp {
             }
             
             if (format === 'pdf') {
-                pdfGenerator.generateTestPDF(this.currentTest, includeAnswers);
+                await pdfGenerator.generateTestPDF(this.currentTest, includeAnswers);
                 this.showToast('PDF exported successfully', 'success');
             } else if (format === 'docx') {
                 await docxGenerator.generateTestDOCX(this.currentTest, includeAnswers);
                 this.showToast('DOCX exported successfully', 'success');
             }
             
-            // Save or update test to database
-            if (this.currentTest.id) {
-                await db.updateTest(this.currentTest);
-            } else {
-                const id = await db.addTest(this.currentTest);
-                this.currentTest.id = id;
-            }
-            
             this.closeModal('exportModal');
+
+            // Prompt to save
+            const alreadySaved = !!this.currentTest.id;
+            const msg = alreadySaved
+                ? 'Would you like to save the current state of this test to history?'
+                : 'Would you like to save this test to history?';
+            if (confirm(msg)) {
+                if (alreadySaved) {
+                    await db.updateTest(this.currentTest);
+                } else {
+                    const id = await db.addTest(this.currentTest);
+                    this.currentTest.id = id;
+                }
+                this.showToast('Test saved to history', 'success');
+            }
         } catch (error) {
             console.error('Failed to export test:', error);
             this.showToast('Failed to export test', 'error');

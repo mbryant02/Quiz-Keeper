@@ -29,7 +29,7 @@ class DOCXGenerator {
         if (window.docx) {
             const { Document, Paragraph, TextRun, AlignmentType, HeadingLevel, Packer,
                     Table, TableRow, TableCell, WidthType, BorderStyle,
-                    Footer, PageNumber } = window.docx;
+                    Footer, PageNumber, ImageRun } = window.docx;
             this.Document = Document;
             this.Paragraph = Paragraph;
             this.TextRun = TextRun;
@@ -43,6 +43,7 @@ class DOCXGenerator {
             this.BorderStyle = BorderStyle || {};
             this.Footer = Footer;
             this.PageNumber = PageNumber;
+            this.ImageRun = ImageRun;
         } else {
             throw new Error('docx library not loaded');
         }
@@ -109,6 +110,14 @@ class DOCXGenerator {
     // Generate test DOCX
     async generateTestDOCX(testData, includeAnswers = false) {
         this.init();
+
+        // Pre-load images for embedding
+        const imageCache = {};
+        for (const q of testData.questions) {
+            if (q.imageUrl && !imageCache[q.imageUrl]) {
+                imageCache[q.imageUrl] = await this.fetchImageForDocx(q.imageUrl);
+            }
+        }
 
         const sections = [];
 
@@ -198,6 +207,26 @@ class DOCXGenerator {
                     ],
                     spacing: { before: 80, after: 80 }
                 });
+
+                // Image (if present)
+                if (question.imageUrl && imageCache[question.imageUrl] && this.ImageRun) {
+                    try {
+                        const imgData = imageCache[question.imageUrl];
+                        const scale = (question.imageWidth || 100) / 100 * 1.75; // +75% vs preview
+                        const maxWidthPx = 576; // ~6 inches at 96dpi
+                        let w = Math.round(imgData.width * scale);
+                        let h = Math.round(imgData.height * scale);
+                        if (w > maxWidthPx) { h = Math.round(h * maxWidthPx / w); w = maxWidthPx; }
+                        addPara({
+                            children: [new this.ImageRun({
+                                data: imgData.dataUrl,
+                                type: 'png',
+                                transformation: { width: w, height: h }
+                            })],
+                            spacing: { after: 80 }
+                        });
+                    } catch (e) { /* skip if image can't be embedded */ }
+                }
 
                 // Render based on question type
                 switch (type) {
@@ -514,7 +543,10 @@ class DOCXGenerator {
 
         // Generate and download
         const blob = await this.Packer.toBlob(doc);
-        const filename = `${testData.title.replace(/[^a-z0-9]/gi, '_')}_${Date.now()}.docx`;
+        const _prefix = (testData.class || testData.subject || '').replace(/[^a-z0-9]/gi, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+        const _title  = (testData.title || 'Test').replace(/[^a-z0-9]/gi, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+        const _date   = new Date().toISOString().slice(0, 10);
+        const filename = [_prefix, _title, _date].filter(Boolean).join('_') + '.docx';
         this.downloadBlob(blob, filename);
     }
 
@@ -585,6 +617,30 @@ class DOCXGenerator {
         link.click();
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
+    }
+
+    // Load an image from a URL and return { dataUrl, width, height } or null.
+    // Uses a canvas so jsPDF/docx can embed it; CORS headers required for cross-origin images.
+    fetchImageForDocx(url) {
+        return new Promise(resolve => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                    resolve({
+                        dataUrl: canvas.toDataURL('image/png'),
+                        width: img.naturalWidth,
+                        height: img.naturalHeight
+                    });
+                } catch (e) { resolve(null); }
+            };
+            img.onerror = () => resolve(null);
+            img.src = url;
+        });
     }
 
     // Utility method to shuffle array

@@ -2,6 +2,8 @@
 
 A browser-based question bank and test generation tool for educators. Build a reusable library of questions, compose tests with control over question distribution, preview and edit the result, then export to PDF or docx formats.
 
+Thanks for checking out Quiz Keeper, I made this tool at the request of my amazingly hardworking wife who works as a university professor and found the tools provided by the university system and the book publisher's online platform to be frustrating. I put a lot of thought into the implementation of this tool and also of course had my wife's suggestions and feedback, so hopefully you will find it usefull too. This tool is provided free and open source under the GNU GPLv3 License, and while I have done my best to make sure it works correctly, a robust amount of testing has not yet been performed. Use it at your own risk and always have a backup of your database saved. In that same vein, if you encounter bugs or have suggestions I cannot promise a response or action but feel free to contact me. 
+
 ---
 
 ## Features
