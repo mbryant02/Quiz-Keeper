@@ -495,7 +495,8 @@
                 <strong>Internet images and exports — what you need to know</strong>
                 <p>When you use a web URL as your image source, the image shows fine in the browser preview. However, when you <em>export</em> to PDF or DOCX, the app needs to copy the actual image data into the file. This is only possible if the website that hosts the image gives explicit permission for it.</p>
                 <p>Think of it like this: your browser is allowed to <em>display</em> a photo from another site, but it may not be allowed to <em>copy</em> that photo into a document — the website owner controls that permission via something called a CORS policy. If the site does not grant this permission, the image will be silently skipped in the export (it will still show in the on-screen preview).</p>
-                <p><strong>The safest approach for exports is to use the Browse or drag-and-drop method</strong> because local files are always fully embedded with no restrictions. Images saved this way are stored directly inside Quiz Keeper as data and will always export correctly.</p>
+                <p>Keep in mind also that when adding images from an internet URL or link, even if the site allows the image to be copied and used, the image may not be available forever. If that site goes down or the address of the link changes, then the reference to it in Quiz Keeper will no longer function.</p>
+                <p><strong>The safest approach is to download the image and use the Browse or drag-and-drop method</strong> because local files are always fully embedded with no restrictions. Images saved this way are stored directly inside Quiz Keeper as data and will always export correctly.</p>
             </div>
         </div>
 
@@ -504,6 +505,21 @@
             <div class="callout-body">
                 <strong>Local file images and database backups</strong>
                 <p>When you browse or drag-and-drop a local file, the image data is saved <em>inside</em> your Quiz Keeper database. This means it will also be included in your <a href="#export-db">database backup</a> — but be aware that backup file sizes will be larger for question banks with many images.</p>
+            </div>
+        </div>
+
+        <div class="callout danger">
+            <div class="icon">🚨</div>
+            <div class="callout-body">
+                <strong>Be aware how many images are added to the database</strong>
+                <p>As explained, adding an image to a question stores it with the question in your database. And while this is in general a negligible increase in size, it can add up if you have many large size images. For example if you had 10 questions each with a 5MB image, your database size would increase by 50MB. Again this is negligible but if taken to unusual extremes it is possible to hit what is known as LRU Storage eviction.</p>
+                <p>Each browser (Chrome, Firefox, Edge, Safari, etc.) has a different maximum storage limit for the method of storage this application uses for the working database. In most cases, you would have to have an unreasonable amount of questions with images and duplicate tests (each test in history has its own copy of the images used, since the test is a snapshot of the test at that time) saved to hit that limit.</p>
+                <p>Chromium based browsers and Firefox have at least a couple gigabytes to work with (this is dependant on your total disk space remaining) but Safari's limit is 1 gigabyte, so it can reach the limit much faster.
+                    So if you are a Safari user I suggest paying more attention to the size of the database than you would otherwise have to. 
+                </p>
+                <p>If you do have this use case with many very large images on Safari, I suggest breaking your databases up to control size, maybe one per subject or class. Or if storing many high resolution images is needed then another tool may better suit your needs.
+                </p>
+                
             </div>
         </div>
 
@@ -517,6 +533,8 @@
             <li><strong>Subject / Class / Exam Period / Type dropdowns</strong> — any combination of filters can be active at once.</li>
             <li><kbd>✕ Clear</kbd> — removes all active filters and shows the full question bank.</li>
         </ul>
+
+         
     </section>
 
     <!-- ───────────────────────── GENERATE ───────────────────────── -->
@@ -571,7 +589,15 @@
             <li><strong>Bold / Italic / Underline</strong> — standard rich text formatting.</li>
             <li><strong>Alignment</strong> — left, centre, or right for selected paragraphs.</li>
         </ul>
-        <p>Click inside any text in the preview, select the text you want to change, then apply formatting. Changes appear live. This implementation is currently not as feature rich as a full word processor so if you need more advanced editing for fonts, tabs, images etc. I suggest you edit the exported test file in your word processor of choice. <strong>The exception to this advice is removing questions from the test, if you remove or replace questions from the test preview screen, the test questions will be automatically renumbered. If you delete a question in a word processor, the question numbers are not a true numbered list so they will not automatically update.</strong></p>
+        <p>Click inside any text in the preview, select the text you want to change, then apply formatting. Changes appear live. This implementation is currently not as feature rich as a full word processor so if you need more advanced editing for fonts, tabs, images etc. I suggest you edit the exported test file in your word processor of choice. 
+        
+        <div class="callout warning">
+            <div class="icon">⚠️</div>
+            <div class="callout-body">
+                <p><strong>The exception to this advice is removing questions from the test, if you remove or replace questions from the test preview screen, the test questions will be automatically renumbered. If you delete a question in a word processor, the question numbers are not a true numbered list so they will not automatically update.</strong></p></p>
+            </div>
+        </div>    
+        
 
         <div class="callout warning">
             <div class="icon">⚠️</div>
@@ -641,7 +667,7 @@
         </ul>
 
         <h3 id="pdf-export">PDF Export</h3>
-        <p>The PDF is generated in the browser using jsPDF and downloaded automatically. Formatting notes:</p>
+        <p>The PDF is generated in the browser using jsPDF and downloaded in your browser's download directory automatically. Formatting notes:</p>
         <ul>
             <li>Font is Helvetica (standard PDF font). Special Unicode characters (arrows like <code>→</code>, Greek letters, superscripts, etc.) are automatically converted to readable ASCII equivalents.</li>
             <li>Questions are kept intact across page breaks — a question will not be split between pages.</li>
@@ -654,7 +680,7 @@
         <p>The exported filename follows the format <code>ClassName_TestTitle_YYYY-MM-DD.pdf</code> (or Subject name if no Class is set).</p>
 
         <h3 id="docx-export">DOCX Export</h3>
-        <p>The Word document is generated using the docx.js library and downloaded automatically. It is compatible with Microsoft Word, LibreOffice Writer, and Google Docs.</p>
+        <p>The Word document is generated using the docx.js library and downloaded in your browser's download directory automatically. It is compatible with Microsoft Word, LibreOffice Writer, and Google Docs.</p>
         <ul>
             <li>Question blocks use Word's "keep together" paragraph property so they are not split across pages.</li>
             <li>All header metadata, section instructions, and answer key options behave the same as in the PDF export.</li>
@@ -685,7 +711,7 @@
         <div class="callout info">
             <div class="icon">ℹ️</div>
             <div class="callout-body">
-                <p>Saved tests store a <em>snapshot</em> of the questions at the time they were saved. Editing or deleting a question in the bank will not change previously saved tests. Use the <a href="#refresh-questions"><kbd>🔄 Refresh Questions</kbd></a> button in the preview footer to pull in the latest question data without permanently overwriting the saved snapshot.</p>
+                <p>Saved tests store a <em>snapshot</em> of the questions at the time they were saved. Editing or deleting a question in the bank will not change previously saved tests. Use the <a href="#refresh-questions"><kbd>🔄 Refresh Questions</kbd></a> button in the preview footer to pull in the latest question data without permanently overwriting the saved snapshot unless you hit save.</p>
             </div>
         </div>
     </section>
@@ -727,6 +753,8 @@
                 <p>Always <a href="#export-db">export a backup</a> before clearing. A confirmation dialog is shown before the operation proceeds, but once confirmed, the data is gone.</p>
             </div>
         </div>
+
+        
     </section>
 
     <!-- ───────────────────────── TIPS ───────────────────────── -->
