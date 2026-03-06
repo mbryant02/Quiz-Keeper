@@ -60,7 +60,8 @@ Thanks for checking out Quiz Keeper, I made this tool at the request of my amazi
 
 ## Getting Started
 
-1. Open `index.html` in a modern browser (Firefox, Chrome, Opera, and Edge were tested to a limited degree).
+1. Download the zip file from releases and unzip, then open `index.html` in a modern browser (Firefox, Chrome, Opera, and Edge were tested to a limited degree).
+2. OR go to https://mbryant02.github.io/Quiz-Keeper/ to use the version hosted here. **Be warned that no promises will be made to keep this version up forever or compatible forever.** I suggest using step 1 to make a local copy on your machine.
 2. Create at least one **Subject** in the Collections tab before adding questions.
 3. Add questions via **+ New Question**.
 4. Click **Generate Test** to compose and export a test.
