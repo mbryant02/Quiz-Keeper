@@ -13,16 +13,24 @@ class PDFGenerator {
     constructor() {
         this.doc = null;
         this.currentY = 20;
-        this.pageWidth = 210; // A4 width in mm
-        this.pageHeight = 297; // A4 height in mm
+        this.pageWidth = 215.9; // US Letter width in mm
+        this.pageHeight = 279.4; // US Letter height in mm
         this.margin = 20;
         this.maxWidth = this.pageWidth - (this.margin * 2);
     }
 
     // Initialize new PDF document
-    init() {
+    init(paperSize = 'letter') {
         const { jsPDF } = window.jspdf;
-        this.doc = new jsPDF();
+        if (paperSize === 'a4') {
+            this.pageWidth  = 210;
+            this.pageHeight = 297;
+        } else {
+            this.pageWidth  = 215.9;
+            this.pageHeight = 279.4;
+        }
+        this.maxWidth = this.pageWidth - (this.margin * 2);
+        this.doc = new jsPDF({ unit: 'mm', format: paperSize === 'a4' ? 'a4' : 'letter' });
         this.doc.setFontSize(11);
         this.doc.setFont('helvetica', 'normal');
         this.currentY = 15;
@@ -224,8 +232,8 @@ class PDFGenerator {
     }
 
     // Generate test PDF
-    async generateTestPDF(testData, includeAnswers = false) {
-        this.init();
+    async generateTestPDF(testData, includeAnswers = false, paperSize = 'letter') {
+        this.init(paperSize);
 
         // Pre-load images
         const imageCache = await this.preloadTestImages(testData.questions);

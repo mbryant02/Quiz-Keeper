@@ -660,9 +660,9 @@
     <!-- ───────────────────────── EXPORT ───────────────────────── -->
     <section id="export">
         <h2>Exporting a Test</h2>
-        <p>Click <kbd>📄 Export Test</kbd> in the preview footer to open the export panel.</p>
+        <p>In the menu at the bottom of Test Preview screen, set export page size by setting toggle <kbd>Size: Letter</kbd> or <kbd>Size: A4</kbd>, then click <kbd>📄 Export Test</kbd>.</p>
         <ul>
-            <li>Tick <strong>Include Answer Key</strong> if you want the answers included inline with the questions and printed at the end of the document. The answer key and the non-answer key versions of the test should be exported separately.</li>
+            <li>Tick <strong>Generate Answer Key</strong> to make a key with  answers included inline with the questions and printed at the end of the document. The answer key and the non-answer key versions of the test should be exported separately.</li>
             <li>Choose <kbd>📄 Export as PDF</kbd> or <kbd>📝 Export as DOCX</kbd>.</li>
         </ul>
 
@@ -670,20 +670,14 @@
         <p>The PDF is generated in the browser using jsPDF and downloaded in your browser's download directory automatically. Formatting notes:</p>
         <ul>
             <li>Font is Helvetica (standard PDF font). Special Unicode characters (arrows like <code>→</code>, Greek letters, superscripts, etc.) are automatically converted to readable ASCII equivalents.</li>
-            <li>Questions are kept intact across page breaks — a question will not be split between pages.</li>
-            <li>Short multiple choice options are laid out on one inline line; longer options are bulleted.</li>
-            <li>Matching questions shuffle the right-column items randomly on each export.</li>
-            <li>If an answer key is included, it is included inline with the questions and placed on a new page at the end.</li>
-            <li><strong>Images</strong> — question images are embedded directly into the PDF file at an enlarged size for print clarity. See the <a href="#question-images">image note about internet URLs</a> if images are missing from your exported PDF.</li>
+            <li><strong>Images</strong> — question images are embedded directly into the PDF file. See the <a href="#question-images">image note about internet URLs</a> if images are missing from your exported PDF.</li>
         </ul>
 
         <p>The exported filename follows the format <code>ClassName_TestTitle_YYYY-MM-DD.pdf</code> (or Subject name if no Class is set).</p>
 
         <h3 id="docx-export">DOCX Export</h3>
-        <p>The Word document is generated using the docx.js library and downloaded in your browser's download directory automatically. It is compatible with Microsoft Word, LibreOffice Writer, and Google Docs.</p>
+        <p>The Word document is generated using the docx.js library and downloaded in your browser's download directory automatically. It is compatible with Microsoft Word, LibreOffice Writer, Google Docs, etc.</p>
         <ul>
-            <li>Question blocks use Word's "keep together" paragraph property so they are not split across pages.</li>
-            <li>All header metadata, section instructions, and answer key options behave the same as in the PDF export.</li>
             <li><strong>Images</strong> — question images are embedded directly inside the <code>.docx</code> file (in the <code>word/media/</code> folder of the document), so the file is fully self-contained. See the <a href="#question-images">image note about internet URLs</a> if images are missing from your exported DOCX.</li>
         </ul>
 
@@ -706,6 +700,7 @@
             <li><strong>Search</strong> — type in the search box and press <kbd>Enter</kbd> to filter by test title or subject.</li>
             <li><strong>Clear</strong> — removes the search filter and shows all saved tests.</li>
             <li>Each Test card has action buttons to <kbd>Load</kbd> (reopens the preview so you can re-export or edit), <kbd>Duplicate</kbd> (creates a copy of the test), and <kbd>Delete</kbd> the test from history. Buttons for fast export to both formats are also included</li>
+            <li>The quick export buttons use the last page size set or default to US Letter size.</li>
         </ul>
 
         <div class="callout info">

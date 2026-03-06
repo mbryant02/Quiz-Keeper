@@ -108,7 +108,7 @@ class DOCXGenerator {
     }
 
     // Generate test DOCX
-    async generateTestDOCX(testData, includeAnswers = false) {
+    async generateTestDOCX(testData, includeAnswers = false, paperSize = 'letter') {
         this.init();
 
         // Pre-load images for embedding
@@ -520,7 +520,13 @@ class DOCXGenerator {
                 ]
             },
             sections: [{
-                properties: {},
+                properties: {
+                    page: {
+                        size: paperSize === 'a4'
+                            ? { width: 11906, height: 16838 } // A4: 210mm × 297mm in twips
+                            : { width: 12240, height: 15840 } // US Letter: 8.5" × 11" in twips
+                    }
+                },
                 ...(testData.showPageNumbers ?? true ? {
                     footers: {
                         default: new this.Footer({

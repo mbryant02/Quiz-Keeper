@@ -39,8 +39,9 @@ Thanks for checking out Quiz Keeper, I made this tool at the request of my amazi
 - **Randomize** question order at any point.
 
 ### Export
-- Export to **PDF** (A4, via jsPDF) or **Word DOCX** — both include smart page-break avoidance so questions never split across pages.
+- Export to **PDF** or **Word DOCX** — both include smart page-break avoidance so questions never split across pages.
 - Export options include a student version (no answers) or an answer key version.
+- US Letter or A4 size toggle for exports
 
 ### Test History
 - Save generated tests for later reference.

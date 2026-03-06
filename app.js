@@ -12,6 +12,7 @@
 class QuizKeeperApp {
     constructor() {
         this.currentView = 'questions';
+        this.paperSize = 'letter';
         this.currentTest = null;
         this.editingQuestion = null;
         this.currentFilters = {
@@ -36,6 +37,7 @@ class QuizKeeperApp {
         try {
             // Apply saved theme before anything renders
             this.applyTheme(localStorage.getItem('theme') || 'light');
+            this.applyPaperSize(localStorage.getItem('paperSize') || 'letter');
 
             // Initialize database
             await db.init();
@@ -67,6 +69,11 @@ class QuizKeeperApp {
         document.getElementById('themeToggleBtn').addEventListener('click', () => {
             const current = document.documentElement.getAttribute('data-theme') || 'light';
             this.applyTheme(current === 'dark' ? 'light' : 'dark');
+        });
+
+        // Paper size toggle
+        document.getElementById('paperSizeBtn').addEventListener('click', () => {
+            this.applyPaperSize(this.paperSize === 'letter' ? 'a4' : 'letter');
         });
 
         // Header buttons
@@ -2459,7 +2466,7 @@ class QuizKeeperApp {
                 const testId = parseInt(btn.dataset.testId);
                 const test = await db.getTest(testId);
                 if (test) {
-                    await pdfGenerator.generateTestPDF(test, false);
+                    await pdfGenerator.generateTestPDF(test, false, this.paperSize);
                     this.showToast('PDF exported', 'success');
                 }
             });
@@ -2470,7 +2477,7 @@ class QuizKeeperApp {
                 const testId = parseInt(btn.dataset.testId);
                 const test = await db.getTest(testId);
                 if (test) {
-                    await docxGenerator.generateTestDOCX(test, false);
+                    await docxGenerator.generateTestDOCX(test, false, this.paperSize);
                     this.showToast('DOCX exported', 'success');
                 }
             });
@@ -2805,10 +2812,10 @@ class QuizKeeperApp {
             }
             
             if (format === 'pdf') {
-                await pdfGenerator.generateTestPDF(this.currentTest, includeAnswers);
+                await pdfGenerator.generateTestPDF(this.currentTest, includeAnswers, this.paperSize);
                 this.showToast('PDF exported successfully', 'success');
             } else if (format === 'docx') {
-                await docxGenerator.generateTestDOCX(this.currentTest, includeAnswers);
+                await docxGenerator.generateTestDOCX(this.currentTest, includeAnswers, this.paperSize);
                 this.showToast('DOCX exported successfully', 'success');
             }
             
@@ -3294,6 +3301,16 @@ class QuizKeeperApp {
         if (btn) {
             btn.textContent = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
             btn.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+        }
+    }
+
+    applyPaperSize(size) {
+        this.paperSize = size;
+        localStorage.setItem('paperSize', size);
+        const btn = document.getElementById('paperSizeBtn');
+        if (btn) {
+            btn.textContent = size === 'a4' ? '📄 Size: A4' : '📄 Size: Letter';
+            btn.title = size === 'a4' ? 'Switch to US Letter' : 'Switch to A4';
         }
     }
 
