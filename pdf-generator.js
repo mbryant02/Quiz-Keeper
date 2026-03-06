@@ -581,9 +581,12 @@ class PDFGenerator {
                             break;
                     }
                     
-                    this.checkPageBreak(8);
-                    this.doc.text(this.sanitizeText(answerText), this.margin, this.currentY);
-                    this.currentY += 6;
+                    const answerLines = this.doc.splitTextToSize(this.sanitizeText(answerText), this.maxWidth);
+                    answerLines.forEach(line => {
+                        this.checkPageBreak(8);
+                        this.doc.text(line, this.margin, this.currentY);
+                        this.currentY += 6;
+                    });
                     questionNumber++;
                 });
             }
